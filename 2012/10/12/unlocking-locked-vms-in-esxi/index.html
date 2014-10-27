@@ -5,7 +5,7 @@
     <meta charset="utf-8" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
 
-    <title>Moving my blog to GitHub pages</title>
+    <title>Unlocking Locked VM&#x27;s in ESXi</title>
     <meta name="description" content="" />
 
     <meta name="HandheldFriendly" content="True" />
@@ -18,7 +18,7 @@
 
     <meta name="generator" content="Ghost 0.5" />
 <link rel="alternate" type="application/rss+xml" title="David Rancourt" href="../../../../rss/index.html">
-<link rel="canonical" href="http://david-rancourt.com/2014/10/22/moving-my-blog-to-github-pages/" />
+<link rel="canonical" href="http://david-rancourt.com/2012/10/12/unlocking-locked-vms-in-esxi/" />
 
     <link href="http://netdna.bootstrapcdn.com/font-awesome/4.0.3/css/font-awesome.css" rel="stylesheet">
 
@@ -36,7 +36,7 @@
     </script>
 </head>
 
-<body class="post-template tag-ghost-tag tag-github-pages tag-buster">
+<body class="post-template tag-virtualization tag-vmware">
 
     <div id="sidebar" >
         <div id="sidebar-content" class="inner">
@@ -79,24 +79,101 @@
         <section id="results"></section>
         
 
-<article class="post tag-ghost-tag tag-github-pages tag-buster featured">
+<article class="post tag-virtualization tag-vmware">
 
 
         <div class="post-meta">
             <span class="post-time">
                 <i class='fa fa-calendar'></i>
-                <time datetime="2014-10-22" class="timeago">4 days ago</time>
-                <time datetime="2014-10-22" class="fulldate">October 22nd, 2014</time>
+                <time datetime="2012-10-12" class="timeago">2 years ago</time>
+                <time datetime="2012-10-12" class="fulldate">October 12th, 2012</time>
             </span>
-            <br><i class='fa fa-tag'></i> <a href="../../../../tag/ghost-tag/index.html">ghost</a> · <a href="../../../../tag/github-pages/index.html">github-pages</a> · <a href="../../../../tag/buster/index.html">buster</a>
+            <br><i class='fa fa-tag'></i> <a href="../../../../tag/virtualization/index.html">virtualization</a> · <a href="../../../../tag/vmware/index.html">vmware</a>
         </div>
 
-        <h1 class="post-title">Moving my blog to GitHub pages</h1>
+        <h1 class="post-title">Unlocking Locked VM&#x27;s in ESXi</h1>
 
         <section class="post-content">
-            <p>I have moved my blog to GitHub pages after taking down my last vps host as it was starting to cost too much money for just running a wordpress blog. All of my posts that were previously hosted on my old server will eventually updated and moved into this blogroll. I look forward to spending less time on maintenace of the servers outside of my office hours and just focus on my personal things when I am away from the office. The technical nature of the blog shouldn't change too much as I have moved on to much more interesting things in the last few months since my last post.</p>
+            <p>So one of your virtual machines either won't lock or got locked in ESXi and you need to fix it quickly? Well <a href="http://kb.vmware.com/selfservice/microsites/search.do?language=en_US&amp;cmd=displayKC&amp;externalId=10051">VMware's KB</a> can be pretty useful when it's direct and to the point. However I found it difficult to figure out after a bit of digging around in my ESXi system. So I thought I would clarify this for everyone here. Often times you'll probably see one of these errors:</p>
 
-<p>Recently my wife and I got a new dog, Cooper. He is a mutt with mostly Wheaton Terrier and Wiredhaired Pointing Griffon. We are enjoying our time with him tremendously now.</p>
+<ul>
+<li>A virtual machine cannot power on.</li>
+<li>Powering on a virtual machine fails.</li>
+<li>Unable to power on a virtual machine.</li>
+<li>Adding an existing disk (VMDK) to a virtual machine that is already powered on fails with the error:</li>
+</ul>
+
+<pre><code class="language-markup">Failed to add disk scsi0:1. Failed to power on scsi0:1  
+</code></pre>
+
+<ul>
+<li>When Powering on the virtual machine you see one of these errors:</li>
+</ul>
+
+<p>Unable to open Swap File <br />
+ Unable to access a file since it is locked <br />
+ Unable to access a file <filename> since it is locked <br />
+ Unable to access Virtual machine configuration</p>
+
+<ul>
+<li>In the <code>/var/log/vmkernel</code> log file, you see entries similar to:</li>
+</ul>
+
+<pre><code class="language-markup">WARNING: World: VM xxxx: xxx: Failed to open swap file &lt;path&gt;: Lock was not free  
+
+WARNING: World: VM xxxx: xxx: Failed to initialize swap file &lt;path&gt;  
+</code></pre>
+
+<ul>
+<li>When opening a console to the virtual machine, you receive this error:</li>
+</ul>
+
+<pre><code class="language-markup">Error connecting to &lt;path&gt;&lt;virtual machine&gt;, vmx because the VMX is not started  
+</code></pre>
+
+<ul>
+<li>Powering on the virtual machine results in the power on task remaining at 95% indefinitely.</li>
+<li>Cannot power on the virtual machine after deploying it from a template</li>
+<li>The virtual machine reports conflicting power states between VMware vCenter Server and the ESXi host console.</li>
+<li>Attempting to view or open the .vmx file using the <em>cat</em> or <em>vi</em> command reports the error:</li>
+</ul>
+
+<pre><code class="language-markup">cat: can't open '[name of vm].vmx': Invalid argument  
+</code></pre>
+
+<p>Any one of the above error statements that is output by your ESXi server there is an easy fix for it: The virtual machine files are commonly locked for run time use (i.e. when the host is running the machine) are usually any of the files in the <em><path><virtual machine></em> directory. The easiest way to identify the locked file is to attempt to power on the VM and you will see an error message that will give you the full path to the VM's directory plus the locked file. So the work around is as follows:</p>
+
+<ol>
+<li>Login to the ESXi host with SSH client (I use <a href="http://www.chiark.greenend.org.uk/~sgtatham/putty/download.html">PuTTY</a>).  </li>
+<li>Confirm that the virtual machine is registered on the server and obtain the full path to the VM. Run the command:  </li>
+</ol>
+
+<pre><code class="language-markup"># vmware-cmd -l
+</code></pre>
+
+<ol>
+<li>The out put returns a list of VM's registered to the host server. Should look something like this:  </li>
+</ol>
+
+<pre><code class="language-markup">[&lt;datastore&gt;] &lt;VMDIR&gt;/&lt;VMNAME&gt;.vmx
+</code></pre>
+
+<ol>
+<li>You need to move to the VM's working directory:  </li>
+</ol>
+
+<pre><code class="language-markup"># cd /vmfs/volumes/&lt;datastore&gt;/&lt;VMDIR&gt;
+</code></pre>
+
+<ol>
+<li>You can use any linux text editor to view the vmware.log file, near the end it will have more verbose output to your error.  </li>
+<li>The command is really easy to fix the whole unlock/lock issue for the whole directory:  </li>
+</ol>
+
+<pre><code class="language-markup">touch *  
+</code></pre>
+
+<p><span style="font-size: medium;"><span style="line-height: 24px;">You should now be able to start up your VM without issues.</span></span></p>
         </section>
 
         <footer class="post-footer">
@@ -118,15 +195,15 @@
             <section class="share">
                 <h4>Share this post</h4>
                 <div class="share-icons">
-                    <a class="fa fa-twitter-square" href="https://twitter.com/share?text=Moving%20my%20blog%20to%20GitHub%20pages&amp;url=http://david-rancourt.com/2014/10/22/moving-my-blog-to-github-pages/"
+                    <a class="fa fa-twitter-square" href="https://twitter.com/share?text=Unlocking%20Locked%20VM's%20in%20ESXi&amp;url=http://david-rancourt.com/2012/10/12/unlocking-locked-vms-in-esxi/"
                         onclick="window.open(this.href, 'twitter-share', 'width=550,height=235');return false;">
                         <span class="hidden">Twitter</span>
                     </a>
-                    <a class="fa fa-facebook-square" href="https://www.facebook.com/sharer/sharer.php?u=http://david-rancourt.com/2014/10/22/moving-my-blog-to-github-pages/"
+                    <a class="fa fa-facebook-square" href="https://www.facebook.com/sharer/sharer.php?u=http://david-rancourt.com/2012/10/12/unlocking-locked-vms-in-esxi/"
                         onclick="window.open(this.href, 'facebook-share','width=580,height=296');return false;">
                         <span class="hidden">Facebook</span>
                     </a>
-                    <a class="fa fa-google-plus-square" href="https://plus.google.com/share?url=http://david-rancourt.com/2014/10/22/moving-my-blog-to-github-pages/"
+                    <a class="fa fa-google-plus-square" href="https://plus.google.com/share?url=http://david-rancourt.com/2012/10/12/unlocking-locked-vms-in-esxi/"
                        onclick="window.open(this.href, 'google-plus-share', 'width=490,height=530');return false;">
                         <span class="hidden">Google+</span>
                     </a>

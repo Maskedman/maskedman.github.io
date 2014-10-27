@@ -19,6 +19,7 @@
     <meta name="generator" content="Ghost 0.5" />
 <link rel="alternate" type="application/rss+xml" title="David Rancourt" href="rss/index.html">
 <link rel="canonical" href="http://david-rancourt.com/" />
+<link rel="next" href="http://david-rancourt.com/page/2/" />
 
     <link href="http://netdna.bootstrapcdn.com/font-awesome/4.0.3/css/font-awesome.css" rel="stylesheet">
 
@@ -85,7 +86,7 @@
         <div class="post-meta">
             <span class="post-time">
                 <i class='fa fa-calendar'></i>
-                <time datetime="2014-10-22" class="timeago">18 hours ago</time>
+                <time datetime="2014-10-22" class="timeago">4 days ago</time>
                 <time datetime="2014-10-22" class="fulldate">October 22nd, 2014</time>
             </span>
             <br><i class='fa fa-tag'></i> <a href="tag/ghost-tag/index.html">ghost</a> · <a href="tag/github-pages/index.html">github-pages</a> · <a href="tag/buster/index.html">buster</a>
@@ -103,8 +104,452 @@
 </article>
 
 
+<article class="post tag-virtualization tag-vmware">
+    <header class="post-header">
+        <div class="post-meta">
+            <span class="post-time">
+                <i class='fa fa-calendar'></i>
+                <time datetime="2012-10-12" class="timeago">2 years ago</time>
+                <time datetime="2012-10-12" class="fulldate">October 12th, 2012</time>
+            </span>
+            <br><i class='fa fa-tag'></i> <a href="tag/virtualization/index.html">virtualization</a> · <a href="tag/vmware/index.html">vmware</a>
+        </div>
+        <h1 class="post-title"><a href="2012/10/12/unlocking-locked-vms-in-esxi/index.html">Unlocking Locked VM&#x27;s in ESXi</a></h1>
+    </header>
+    <section class="post-content">
+        <p>So one of your virtual machines either won't lock or got locked in ESXi and you need to fix it quickly? Well <a href="http://kb.vmware.com/selfservice/microsites/search.do?language=en_US&amp;cmd=displayKC&amp;externalId=10051">VMware's KB</a> can be pretty useful when it's direct and to the point. However I found it difficult to figure out after a bit of digging around in my ESXi system. So I thought I would clarify this for everyone here. Often times you'll probably see one of these errors:</p>
+
+<ul>
+<li>A virtual machine cannot power on.</li>
+<li>Powering on a virtual machine fails.</li>
+<li>Unable to power on a virtual machine.</li>
+<li>Adding an existing disk (VMDK) to a virtual machine that is already powered on fails with the error:</li>
+</ul>
+
+<pre><code class="language-markup">Failed to add disk scsi0:1. Failed to power on scsi0:1  
+</code></pre>
+
+<ul>
+<li>When Powering on the virtual machine you see one of these errors:</li>
+</ul>
+
+<p>Unable to open Swap File <br />
+ Unable to access a file since it is locked <br />
+ Unable to access a file <filename> since it is locked <br />
+ Unable to access Virtual machine configuration</p>
+
+<ul>
+<li>In the <code>/var/log/vmkernel</code> log file, you see entries similar to:</li>
+</ul>
+
+<pre><code class="language-markup">WARNING: World: VM xxxx: xxx: Failed to open swap file &lt;path&gt;: Lock was not free  
+
+WARNING: World: VM xxxx: xxx: Failed to initialize swap file &lt;path&gt;  
+</code></pre>
+
+<ul>
+<li>When opening a console to the virtual machine, you receive this error:</li>
+</ul>
+
+<pre><code class="language-markup">Error connecting to &lt;path&gt;&lt;virtual machine&gt;, vmx because the VMX is not started  
+</code></pre>
+
+<ul>
+<li>Powering on the virtual machine results in the power on task remaining at 95% indefinitely.</li>
+<li>Cannot power on the virtual machine after deploying it from a template</li>
+<li>The virtual machine reports conflicting power states between VMware vCenter Server and the ESXi host console.</li>
+<li>Attempting to view or open the .vmx file using the <em>cat</em> or <em>vi</em> command reports the error:</li>
+</ul>
+
+<pre><code class="language-markup">cat: can't open '[name of vm].vmx': Invalid argument  
+</code></pre>
+
+<p>Any one of the above error statements that is output by your ESXi server there is an easy fix for it: The virtual machine files are commonly locked for run time use (i.e. when the host is running the machine) are usually any of the files in the <em><path><virtual machine></em> directory. The easiest way to identify the locked file is to attempt to power on the VM and you will see an error message that will give you the full path to the VM's directory plus the locked file. So the work around is as follows:</p>
+
+<ol>
+<li>Login to the ESXi host with SSH client (I use <a href="http://www.chiark.greenend.org.uk/~sgtatham/putty/download.html">PuTTY</a>).  </li>
+<li>Confirm that the virtual machine is registered on the server and obtain the full path to the VM. Run the command:  </li>
+</ol>
+
+<pre><code class="language-markup"># vmware-cmd -l
+</code></pre>
+
+<ol>
+<li>The out put returns a list of VM's registered to the host server. Should look something like this:  </li>
+</ol>
+
+<pre><code class="language-markup">[&lt;datastore&gt;] &lt;VMDIR&gt;/&lt;VMNAME&gt;.vmx
+</code></pre>
+
+<ol>
+<li>You need to move to the VM's working directory:  </li>
+</ol>
+
+<pre><code class="language-markup"># cd /vmfs/volumes/&lt;datastore&gt;/&lt;VMDIR&gt;
+</code></pre>
+
+<ol>
+<li>You can use any linux text editor to view the vmware.log file, near the end it will have more verbose output to your error.  </li>
+<li>The command is really easy to fix the whole unlock/lock issue for the whole directory:  </li>
+</ol>
+
+<pre><code class="language-markup">touch *  
+</code></pre>
+
+<p><span style="font-size: medium;"><span style="line-height: 24px;">You should now be able to start up your VM without issues.</span></span></p>
+    </section>
+    <footer class="post-indexfooter">
+        <i class="fa fa-comments"></i> <a href="2012/10/12/unlocking-locked-vms-in-esxi/index.html#disqus_thread">Comments</a>
+    </footer>
+</article>
+
+
+<article class="post tag-dell tag-dell-service-tag tag-express-service-code tag-hardware tag-remote-access tag-remote-cli tag-service-tag tag-windows-server">
+    <header class="post-header">
+        <div class="post-meta">
+            <span class="post-time">
+                <i class='fa fa-calendar'></i>
+                <time datetime="2012-10-09" class="timeago">2 years ago</time>
+                <time datetime="2012-10-09" class="fulldate">October 9th, 2012</time>
+            </span>
+            <br><i class='fa fa-tag'></i> <a href="tag/dell/index.html">Dell</a> · <a href="tag/dell-service-tag/index.html">Dell Service Tag</a> · <a href="tag/express-service-code/index.html">Express Service Code</a> · <a href="tag/hardware/index.html">Hardware</a> · <a href="tag/remote-access/index.html">Remote Access</a> · <a href="tag/remote-cli/index.html">Remote CLI</a> · <a href="tag/service-tag/index.html">Service Tag</a> · <a href="tag/windows-server/index.html">Windows Server</a>
+        </div>
+        <h1 class="post-title"><a href="2012/10/09/get-dell-service-tag-express-service-code-from-linux-windows/index.html">Get Dell Service Tag &amp; Express Service Code From Linux &amp; Windows</a></h1>
+    </header>
+    <section class="post-content">
+        <p>First off I wanted to mention that I stole this article from this <a href="http://www.thegeekstuff.com/2008/10/view-dell-service-tag-and-express-service-code-from-linux-and-windows/#more-243">guy</a> as it is totally worth getting this information out there to the masses who support Dell hardware and have to reach out to Dell Support every now and then. This is an awesome trick for those times when you need to get in touch with Dell's technical support or to get drivers and other documentation from <a href="http://support.dell.com">Dell Support</a>. I mainly use the Windows piece but will add the Linux after the jump.</p>
+
+<h3 id="1getdellservicetagonremotewindowssystemviardpvncetc">1. Get DELL Service Tag on remote Windows System via RDP/VNC etc.</h3>
+
+<pre><code class="language-markup">C:\wmic bios get serialnumber SerialNumber ABCDEF1  
+</code></pre>
+
+<p>The following command can give you more information such as the make, model, and service tag. C:\wmic csproduct get vendor,name,identifyingnumber IdentifyingNumber Name Vendor ABCDEF1 PowerEdge 2950 Dell Inc.</p>
+
+<h3 id="2getdellservicetagonremotewindowssystem">2. Get DELL Service Tag on remote Windows System</h3>
+
+<p>If VNC or Remote Desktop isn't available, you can execute the following command from your local machine to get the service tag of the remote machine.</p>
+
+<pre><code class="language-markup ">C:\wmic /user:administrator /note:remote-host bios get serialnumber  
+SerialNumber ABCDEF1  
+</code></pre>
+
+<p>[Note: replace remote-host with the machine name of your remote host.]</p>
+
+<h3 id="3getdellservicetagonremotelinuxsystem">3. Get DELL Service Tag on remote Linux System</h3>
+
+<p>Login to your Linux system using SSH. Use dmidecode on Linux to get service tag as shown.  </p>
+
+<pre><code class="language-markup">[remote-host]# dmidecode -s system-serial-number
+ABCDEF1  
+</code></pre>
+
+<h3 id="4getdellexpressservicecodefromyourservicetag">4. Get DELL Express Service Code from your Service Tag</h3>
+
+<p>Service Tag is a base-36 integer. Once you have your service tag, you can calculate your Express Service Code yourself. Express Service Code is a base-10 integer. Dell mainly uses the Service Code for support based in-call routing. When you call Dell support, it may ask you for your express service code which you can easily enter in your telephone in the dial pad, as it is a bunch of numbers. Use the following tools to find express service code from service tag and vice-versa.</p>
+
+<ol>
+<li><a href="http://www.creativyst.com/Doc/Articles/HT/Dell/DellPop.htm">Creativyst Dell-Number Widget</a>  </li>
+<li><a href="http://www.powerdog.com/dellconv.cgi">Dell PC service tag/code converter from PowerDog industries</a></li>
+</ol>
+
+<p>I have also tried this method on some of my other vendor equipment so far I have seen it work on the following: 1. IBM <br />
+2. HP Blades <br />
+3. HP Servers <br />
+4. Supermicro Servers</p>
+    </section>
+    <footer class="post-indexfooter">
+        <i class="fa fa-comments"></i> <a href="2012/10/09/get-dell-service-tag-express-service-code-from-linux-windows/index.html#disqus_thread">Comments</a>
+    </footer>
+</article>
+
+
+<article class="post tag-esxi tag-flexlm tag-hardware tag-license-server tag-mac-address tag-networking tag-virtualization tag-vmware tag-windows-server">
+    <header class="post-header">
+        <div class="post-meta">
+            <span class="post-time">
+                <i class='fa fa-calendar'></i>
+                <time datetime="2012-10-09" class="timeago">2 years ago</time>
+                <time datetime="2012-10-09" class="fulldate">October 9th, 2012</time>
+            </span>
+            <br><i class='fa fa-tag'></i> <a href="tag/esxi/index.html">ESXi</a> · <a href="tag/flexlm/index.html">FlexLM</a> · <a href="tag/hardware/index.html">Hardware</a> · <a href="tag/license-server/index.html">License Server</a> · <a href="tag/mac-address/index.html">MAC Address</a> · <a href="tag/networking/index.html">networking</a> · <a href="tag/virtualization/index.html">virtualization</a> · <a href="tag/vmware/index.html">vmware</a> · <a href="tag/windows-server/index.html">Windows Server</a>
+        </div>
+        <h1 class="post-title"><a href="2012/10/09/esxi-vm-need-to-manually-change-mac-address/index.html">ESXi VM need to manually change MAC Address</a></h1>
+    </header>
+    <section class="post-content">
+        <p>Today, I had to deal with a FlexLM Licensing server issue which resulted from a VM which had it's NIC configured for the SAN's VLAN rather than for the production VLAN which caused the server to have some considerable amounts of downtime. I will talk about the setting up my SAN on a different VLAN from the rest of my production network in another post. In VMWare ESXi vSphere console for the VM host server which my guest VM was hosted on I attempted to change the MAC address of a specific NIC so the license server would work correctly. Well I was able to force this in ESXi in a previous version of ESXi 3.5 which allowed me to use any MAC address that I wanted to use. Well in ESXi 4.1 you can't do that anymore as it forces you to only modify the last 6 digits of the MAC address rather than the whole set. My work around evolved below:</p>
+
+<p><a href="http://david-rancourt.com/2012/esxi-vm-need-to-manually-change-mac-address/esximacdef/"><img src="http://res.cloudinary.com/david-rancourt-com/image/upload/v1414557778/esximacdef_tpckpx.png" alt="" title="esximacdef" /></a>As you notice in the above figure, the MAC Address is a random address given by my ESXi server. I need to bypass this and force a MAC Address from a NIC that I am not using anymore on an old server that I needed to move my FlexLM Licensing from. To accomplish this I went into the NIC's Advanced configuration in the driver settings:</p>
+
+<p><a href="http://david-rancourt.com/2012/esxi-vm-need-to-manually-change-mac-address/macbypass/"><img src="http://res.cloudinary.com/david-rancourt-com/image/upload/v1414557778/macbypass_diwdbl.png" alt="" title="macbypass" /></a></p>
+
+<p>This allowed me to set the MAC Address for the NIC and forces this address over the one set by ESXi. </p>
+
+<p><span style="color: #ff0000;">NOTE: I have confirmed that this setup works with FlexLM on both Windows Server 2003 and Server 2008. I have not yet tested on Windows Server 2012. <br />
+</span> <br />
+Also make note that: <span style="color: #ff0000;">You can never fire up that NIC ever again on your old server. Even if you plan to re-purpose it unless you are able to change it's MAC Address manually or install a new NIC as firing up that NIC will cause the above setup to fail miserably as you will have tons of trouble connecting to the new server from the old one.</span></p>
+    </section>
+    <footer class="post-indexfooter">
+        <i class="fa fa-comments"></i> <a href="2012/10/09/esxi-vm-need-to-manually-change-mac-address/index.html#disqus_thread">Comments</a>
+    </footer>
+</article>
+
+
+<article class="post tag-dns tag-hacking tag-network-security tag-networking tag-security">
+    <header class="post-header">
+        <div class="post-meta">
+            <span class="post-time">
+                <i class='fa fa-calendar'></i>
+                <time datetime="2012-10-01" class="timeago">2 years ago</time>
+                <time datetime="2012-10-01" class="fulldate">October 1st, 2012</time>
+            </span>
+            <br><i class='fa fa-tag'></i> <a href="tag/dns/index.html">DNS</a> · <a href="tag/hacking/index.html">hacking</a> · <a href="tag/network-security/index.html">network security</a> · <a href="tag/networking/index.html">networking</a> · <a href="tag/security/index.html">security</a>
+        </div>
+        <h1 class="post-title"><a href="2012/10/01/why-you-should-change-your-default-passwords/index.html">Why you should change your default passwords</a></h1>
+    </header>
+    <section class="post-content">
+        <p>So you bought that shiny new wireless router or your ISP gave you a new one after signing on to a new contract with them. The very first things many people do is personalize the SSIDs on the device so that they can distinguish their wireless network from their neighbor's wireless but forget to overlook a major security concern.  In the article presented by Sophos, over 4.5 million DSL subsribers who got new modems from the dominant ISP in Brazil got duped because they didn't bother to change the default password on the device, however Sophos goes further in-depth in the situation by detailing the process the attackers used to change the DNS servers to malicious DNS servers which then points to malicious sites even though the site is legitimate. In the article it details that the DNS record for google in Brazil is google.com.br which is the legitimate domain name for the Brazilian version of Google. The hackers changed the DNS records by simply gaining access to all of the modems and the website looks legitimate when visiting it, however it asked users to download a file which the real Google never does. Moral of the story is to change your network device passwords as soon as you set them up because if they get modified without your knowledge you can be on the hook for something much more serious than simply changing your DNS to malicious DNS. Story from Sophos: <a href="http://nakedsecurity.sophos.com/2012/10/01/hacked-routers-brazil-vb2012/?utm_source=feedburner&amp;utm_medium=feed&amp;utm_campaign=Feed%3A+nakedsecurity+%28Naked+Security+-+Sophos%29">source</a></p>
+    </section>
+    <footer class="post-indexfooter">
+        <i class="fa fa-comments"></i> <a href="2012/10/01/why-you-should-change-your-default-passwords/index.html#disqus_thread">Comments</a>
+    </footer>
+</article>
+
+
+<article class="post tag-dell tag-networking tag-powerconnect tag-powerconnect-6248 tag-switches tag-switching">
+    <header class="post-header">
+        <div class="post-meta">
+            <span class="post-time">
+                <i class='fa fa-calendar'></i>
+                <time datetime="2012-09-29" class="timeago">2 years ago</time>
+                <time datetime="2012-09-29" class="fulldate">September 29th, 2012</time>
+            </span>
+            <br><i class='fa fa-tag'></i> <a href="tag/dell/index.html">Dell</a> · <a href="tag/networking/index.html">networking</a> · <a href="tag/powerconnect/index.html">PowerConnect</a> · <a href="tag/powerconnect-6248/index.html">PowerConnect 6248</a> · <a href="tag/switches/index.html">switches</a> · <a href="tag/switching/index.html">Switching</a>
+        </div>
+        <h1 class="post-title"><a href="2012/09/29/update-dell-powerconnect-firmware-via-ssh-and-sftp/index.html">Update Dell PowerConnect Firmware via SSH and SFTP</a></h1>
+    </header>
+    <section class="post-content">
+        <p>You can use PuTTY to telnet into your Dell PowerConnect 62xx switches to configure them and install new firmware. The CLI is much more powerful than the web interface of the 62xx series switches. This setup is not limited to stacking modules but in my example I am using multiple switches in a stack configuration so it only shows up as 1 switch in my configuration panel.</p>
+
+<p>Download the Dell Switch Firmware from <a href="http://support.dell.com">http://support.dell.com</a> and enter the service tag of your switch to get the specific firmware for the model.</p>
+
+<p>Download TFTP64server from here: <a href="http://tftpd32.jounin.net/tftpd32_download.html">http://tftpd32.jounin.net/tftpd32_download.html</a></p>
+
+<p>Setup TFTP64server</p>
+
+<p>Create a directory in C:\ root of your computer then make the following directories:  </p>
+
+<pre><code class="language-markup">C:\switches\firmware  
+</code></pre>
+
+<p>Copy the dell firmware files to the firmware directory. <br />
+Commands for Telnet on 62xx switches:</p>
+
+<p>Open Putty in Telnet mode to IP address of your Power Connect switch  </p>
+
+<pre><code class="language-markup">THIS SYSTEM IS PROPERTY OF XXXXX COMPANY XXXXX INFORMATION TECHNOLOGY DEPARTMENT. UNAUTHORIZED USE OF THIS DEVICE IS NOT PERMITTED UNDER THE TERMS OF THE ACCEPTABLE USE POLICY.Press 'y' to continue (within 30 seconds) (y/n) y  
+User:admin  
+Password:*********  
+SW-ENG&gt;en  
+SW-ENG#show version  
+Image Descriptions  
+image1 : default image  
+image2 :
+
+Images currently available on Flash  
+--------------------------------------------------------------------
+unit image1 image2 current-active next-active  
+--------------------------------------------------------------------
+1 3.2.0.7 3.2.1.3 image1 image1  
+2 3.2.0.7 3.2.1.3 image1 image1  
+SW-ENG#copy tftp://&lt;yourTFTPserverIP&gt;/&lt;firmwareName&gt;.stk imageMode...........................................  
+TFTPSet TFTP Server IP............................. &lt;yourTFTPserverIP&gt;TFTP Path...................................... ./  
+TFTP Filename.................................. &lt;firmwareName&gt;.stk  
+Data Type...................................... Code  
+Destination Filename........................... image
+
+Management access will be blocked for the duration of the transferAre you sure you want to start? (y/n) y
+
+TFTP code transfer starting9718796 bytes transferredFile reception completeVerifying file...File contents are valid.
+
+Distributing the code to the members of the stack!File transfer operation completed successfully.
+
+SW-ENG#show version
+
+Image Descriptions  
+image1 : default image  
+image2 :
+
+Images currently available on Flash  
+--------------------------------------------------------------------
+unit image1 image2 current-active next-active  
+--------------------------------------------------------------------
+1 3.2.0.7 3.3.4.1 image1 image1  
+2 3.2.0.7 3.3.4.1 image1 image1
+
+SW-ENG#boot system image2  
+Activating image image2 ..  
+SW-ENG#update bootcode  
+Update bootcode and reset (Y/N)? Y
+
+Issuing boot code update command...  
+</code></pre>
+
+<p>After hitting the 'Y' key on the Update bootcode and reset, the switch should be rebooted into the latest firmware. To confirm you can <code>show version</code></p>
+    </section>
+    <footer class="post-indexfooter">
+        <i class="fa fa-comments"></i> <a href="2012/09/29/update-dell-powerconnect-firmware-via-ssh-and-sftp/index.html#disqus_thread">Comments</a>
+    </footer>
+</article>
+
+
+<article class="post tag-exchange tag-exchange-2007 tag-exchange-certificates tag-security tag-ssl tag-ssl-certificates tag-ssl-renewal">
+    <header class="post-header">
+        <div class="post-meta">
+            <span class="post-time">
+                <i class='fa fa-calendar'></i>
+                <time datetime="2012-09-28" class="timeago">2 years ago</time>
+                <time datetime="2012-09-28" class="fulldate">September 28th, 2012</time>
+            </span>
+            <br><i class='fa fa-tag'></i> <a href="tag/exchange/index.html">exchange</a> · <a href="tag/exchange-2007/index.html">Exchange 2007</a> · <a href="tag/exchange-certificates/index.html">Exchange Certificates</a> · <a href="tag/security/index.html">security</a> · <a href="tag/ssl/index.html">SSL</a> · <a href="tag/ssl-certificates/index.html">SSL Certificates</a> · <a href="tag/ssl-renewal/index.html">SSL Renewal</a>
+        </div>
+        <h1 class="post-title"><a href="2012/09/28/renewing-ssl-certificates-for-exchange/index.html">Renewing SSL Certificates for Exchange</a></h1>
+    </header>
+    <section class="post-content">
+        <p>While there are a number of great guides designed to teach a budding Exchange Administrator how to add a brand new SSL certificate to your Exchange system, there seems to be a severe lack of guides to renew said SSL cert. As most of us administrators will spend more time renewing these pesky annual certificates rather than doing the first install I figured I needed to save this little gem so I can easily refer back to it year after year... </p>
+
+<p>Some items of note before we get started. I've only tested this on my configuration, your systems may vary. This was tested on a fairly standard Exchange 2007 SP1 system running on Windows 2003 R2. Also this is not for the self-signed internal Exchange certificate (that process can be found <a href="http://dhcollier.blogspot.com/2009/06/exchange-2007-renewing-self-signed-cert.html">here</a>), this process is for your external facing SSL certificate (which I would assume is a purchased valid certificate from a 3rd Party root CA such as Verisign, Thwate, or even say GoDaddy if you are seeking a discount wildcard SSL cert). </p>
+
+<p>So without further delay away we go, Administrators familiar with say IIS based renewals will likely be tripped up by the very first step, to begin the renewal process in Exchange 2007 you actually don't do a "renewal" per-se, instead you'll want to issue a new certificate request - there are two options here. Both of which are launched from the Exchange Management Shell:</p>
+
+<p><code>Option 1:</code></p>
+
+<p>Issue a SAN (Subject Alternative Names) Certificate - also called a wildcard certificate. These certs are very helpful for exchange environments as it can be used to replace the self-signed Exchange certificate as well as work for the multiple exchange sites such as autodiscover, owa.company.com, mail.company.com, etc.  </p>
+
+<pre><code class="language-markup">New-Exchangecertificate -domainname mail.company.com, company.com, company.local, autodiscover.company.com, autodiscover.company.local, servername01.company.local, servername01 -Friendlyname companyExchCrt -generaterequest:$true -keysize 1024 -path c:\cerReq.csr -privatekeyexportable:$true -subjectname "c=US, s=Texas, l=Dallas, o=Company Name, ou=IT, cn=mail.company.com"  
+</code></pre>
+
+<p><code>Option 2:</code></p>
+
+<p>Issue a Standard single domain certificate - useful for OWA only or environments that want to keep the self-signed exchange certificate - also MUCH cheaper. </p>
+
+<pre><code class="language-markup">New-ExchangeCertificate -GenerateRequest:$true -keysize 1024 -path c:\cerReq.csr -privatekeyexportable:$true -SubjectName "c=US, s=Texas, l=Dallas, o=Company Name, ou=IT, cn=mail.company.com"  
+</code></pre>
+
+<p>Under SubjectName you'll want to fill your values in appropriately.  </p>
+
+<pre><code class="language-markup">c= Your 2 digit Country  
+s= Your State (I tend to spell it out, though some just use the standard 2 character state code) l= Your Locality (City, Region, it's up to you)  
+o= Your company name  
+ou= Your Organizational Unit (common here is IT/IS Department or just omit if not required)  
+cn= the common name of the certificate.  
+</code></pre>
+
+<p>This is important as it is the name the certificate will be issued on - if you are using this Certificate for OWA or even secure SMTP/POP access you will want this to match your MX DNS records (such as mail.company.com or owa.company.com - not as critical with a SAN cert).</p>
+
+<p>Now the fun begins, you go to your certificate provider and go though the renewal process, when prompted attach or copy the text from your CSR file (<code>c:\cerReq.csr</code> if you followed the example above) and wait for your new certificate to be emailed back to you (or retrieved from the company's website).</p>
+
+<p>Save this new certificate in a file called exchcert.cer on the root of your c:\</p>
+
+<p>Note: if you get it from a web page you may need to copy everything from  </p>
+
+<pre><code class="language-markup">-----BEGIN CERTIFICATE-----
+          to   
+-----END CERTIFICATE-----
+</code></pre>
+
+<p>into a text file (using notepad) and save it as <code>c:\exchcert.cer</code> </p>
+
+<p>Open the Exchange Management Shell Issue the following command  </p>
+
+<pre><code class="language-markup">cGet-ExchangeCertificate | fl | out-file -filePath c:\CurrentCerts.txt  
+</code></pre>
+
+<p>This will export all the certificates on the server to a text file, when opened it looks like this:  </p>
+
+<pre><code class="language-markup">AccessRules : {System.Security.AccessControl.CryptoKeyAccessRule, System.Security.AccessControl.CryptoKeyAccessRule, System.Security.AccessControl.CryptoKeyAccessRule}  
+CertificateDomains : {mail.company.com}  
+HasPrivateKey : True  
+IsSelfSigned : False  
+Issuer : OU=[www.verisign.com/CPS Incorp.by](http://www.verisign.com/CPS%20Incorp.by) Ref. LIABILITY LTD.(c)97 VeriSign, OU=VeriSign International Server CA - Class 3,  
+OU="VeriSign, Inc.", O=VeriSign Trust Network  
+NotAfter : 4/18/2009 6:59:59 PM  
+NotBefore : 3/26/2008 7:00:00 PM  
+PublicKeySize : 1024  
+RootCAType : ThirdParty  
+SerialNumber : 29BBFFD5AAAB541AB9BB2A73139AG335  
+Services : IMAP, POP, IIS, SMTP  
+Status : Valid  
+Subject : CN=mail.company.com, OU=Terms of use at verisign.com/rpa (c)05, OU=IT, o=company name, L=Dallas, S=Texas, C=US  
+Thumbprint : C21DE04E3123210AD28E430742C21D0194F46421  
+</code></pre>
+
+<p>Two things to note here, </p>
+
+<p><code>Services:</code> - these two are important to the next step - depending on what you use the current certificate for you will want to make sure the renewal cert does the same thing (in the example above this certificate does IMAP, POP, IIS, and SMTP) </p>
+
+<p><code>Thumbprint:</code> - this is used to delete the old certificate which is our next step. </p>
+
+<pre><code class="language-markup">Remove-ExchangeCertificate -thumbprint [old certificate thumbprint]  
+</code></pre>
+
+<p>
+from the example above:  </p>
+
+<pre><code class="language-markup ">Remove-ExchangeCertificate -thumbprint C21DE04E3123210AD28E430742C21D0194F46421  
+</code></pre>
+
+<p>You will get a confirmation to remove the old certificate, you'll want to type Y to remove it. Now you are almost done, we just need to add the newly renewed certificate back into the system. </p>
+
+<pre><code class="language-markup">Import-ExchangeCertificate -path c:\exchcert.cer | Enable-ExchangeCertificate -Services [your services from above]  
+</code></pre>
+
+<p>
+Using our example you will want to do the following to get the certificate working on all services (except Unified Messaging - UM). </p>
+
+<pre><code class="language-markup">Import-ExchangeCertificate -path c:\exchcert.cer | Enable-ExchangeCertificate -Services IMAP, POP, IIS, SMTP  
+</code></pre>
+
+<p>Now just to confirm all is working as expected, you will want to issue the following command  </p>
+
+<pre><code class="language-markup">Get-ExchangeCertificate  
+</code></pre>
+
+<p>This will display something similar to this:  </p>
+
+<pre><code class="language-markup">Thumbprint Services Subject ---------- -------- ------- C32DE24E1214210AD28E030742C21D0194F060D1 IP.WS CN=mail.company.com  
+</code></pre>
+    </section>
+    <footer class="post-indexfooter">
+        <i class="fa fa-comments"></i> <a href="2012/09/28/renewing-ssl-certificates-for-exchange/index.html#disqus_thread">Comments</a>
+    </footer>
+</article>
+
+
+<article class="post tag-dell-6248 tag-dell-powerconnect tag-lag-groups tag-networking tag-port-fast tag-rapid-stp tag-switching tag-vlan">
+    <header class="post-header">
+        <div class="post-meta">
+            <span class="post-time">
+                <i class='fa fa-calendar'></i>
+                <time datetime="2012-09-28" class="timeago">2 years ago</time>
+                <time datetime="2012-09-28" class="fulldate">September 28th, 2012</time>
+            </span>
+            <br><i class='fa fa-tag'></i> <a href="tag/dell-6248/index.html">Dell 6248</a> · <a href="tag/dell-powerconnect/index.html">Dell PowerConnect</a> · <a href="tag/lag-groups/index.html">LAG Groups</a> · <a href="tag/networking/index.html">networking</a> · <a href="tag/port-fast/index.html">Port Fast</a> · <a href="tag/rapid-stp/index.html">Rapid STP</a> · <a href="tag/switching/index.html">Switching</a> · <a href="tag/vlan/index.html">VLAN</a>
+        </div>
+        <h1 class="post-title"><a href="2012/09/28/dell-powerconnect-switches-packet-loss-issues/index.html">Dell PowerConnect Switches Packet Loss Issues</a></h1>
+    </header>
+    <section class="post-content">
+        <p>  I upgraded many Dell 6248 switches to the latest and greatest firmware over the weekend.  I have been experiencing more packet loss than I would ever want to see on an internal LAN.  Connecting from the servers on the same switch would yield a periodic lost packet for no apparent reason.  There were some clues on the switch with logged “spanning tree topology changes” in the log file.  During this log event, I would drop packets not only on the local switch, but other connecting switches as well.  All of these switches are configured with Rapid STP, LAG groups between them, and two VLANs. Reading up on the dell site, I saw some good advice entailing turning on “Port Fast” on every port that isn’t an edge link between switches, namely ports connected to switches and servers.  This advice appears to be valid.  With the latest firmware I could go to Global STP settings and simply enable Port Fast.  It was smart enough to not turn it on for the LAG groups and switch interconnects with multi-vlans on them.  So far so good…over the past few hours I haven’t had any dropped packets. <a href="http://david-rancourt.com/2012/dell-powerconnect-switches-packet-loss-issues/dellswitchpktlossdemo/"><img src="http://res.cloudinary.com/david-rancourt-com/image/upload/v1414557779/dellswitchpktlossdemo_efln5m.png" alt="" title="dellswitchpktlossdemo" /></a></p>
+    </section>
+    <footer class="post-indexfooter">
+        <i class="fa fa-comments"></i> <a href="2012/09/28/dell-powerconnect-switches-packet-loss-issues/index.html#disqus_thread">Comments</a>
+    </footer>
+</article>
+
+
 <nav class="pagination" role="navigation">
-    <span class="page-number">Page 1 of 1</span>
+    <span class="page-number">Page 1 of 2</span>
+        <a class="older-posts" href="page/2/index.html">Older Posts &rarr;</a>
 </nav>
 
 <script type="text/javascript">

@@ -5,7 +5,7 @@
     <meta charset="utf-8" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
 
-    <title>github-pages - David Rancourt</title>
+    <title>P2V convert - David Rancourt</title>
     <meta name="description" content="" />
 
     <meta name="HandheldFriendly" content="True" />
@@ -18,7 +18,7 @@
 
     <meta name="generator" content="Ghost 0.5" />
 <link rel="alternate" type="application/rss+xml" title="David Rancourt" href="../../rss/index.html">
-<link rel="canonical" href="http://david-rancourt.com/tag/github-pages/" />
+<link rel="canonical" href="http://david-rancourt.com/tag/p2v-convert/" />
 
     <link href="http://netdna.bootstrapcdn.com/font-awesome/4.0.3/css/font-awesome.css" rel="stylesheet">
 
@@ -36,7 +36,7 @@
     </script>
 </head>
 
-<body class="tag-template tag-github-pages">
+<body class="tag-template tag-p2v-convert">
 
     <div id="sidebar" >
         <div id="sidebar-content" class="inner">
@@ -80,30 +80,30 @@
         
 
 <header class="tag-archive-header">
-    <h4><i class="fa fa-tag"></i><span class="tag-archive-header-name">github-pages</span></h4>
+    <h4><i class="fa fa-tag"></i><span class="tag-archive-header-name">P2V convert</span></h4>
 </header>
 
 
-<article class="post tag-ghost-tag tag-github-pages tag-buster featured">
+<article class="post tag-p2v-convert tag-virtualization tag-vmware">
     <header class="post-header">
         <div class="post-meta">
             <span class="post-time">
                 <i class='fa fa-calendar'></i>
-                <time datetime="2014-10-22" class="timeago">4 days ago</time>
-                <time datetime="2014-10-22" class="fulldate">October 22nd, 2014</time>
+                <time datetime="2012-09-28" class="timeago">2 years ago</time>
+                <time datetime="2012-09-28" class="fulldate">September 28th, 2012</time>
             </span>
-            <br><i class='fa fa-tag'></i> <a href="../ghost-tag/index.html">ghost</a> · <a href="index.html">github-pages</a> · <a href="../buster/index.html">buster</a>
+            <br><i class='fa fa-tag'></i> <a href="index.html">P2V convert</a> · <a href="../virtualization/index.html">virtualization</a> · <a href="../vmware/index.html">vmware</a>
         </div>
-        <h2 class="post-title"><a href="../../2014/10/22/moving-my-blog-to-github-pages/index.html">Moving my blog to GitHub pages</a></h2>
+        <h2 class="post-title"><a href="../../2012/09/28/p2v-conversion-failure-fixed/index.html">P2V Conversion Failure Fixed</a></h2>
 
     </header>
     <section class="post-content">
-        <p>I have moved my blog to GitHub pages after taking down my last vps host as it was starting to cost too much money for just running a wordpress blog. All of my posts that were previously hosted on my old server will eventually updated and moved into this blogroll. I look forward to spending less time on maintenace of the servers outside of my office hours and just focus on my personal things when I am away from the office. The technical nature of the blog shouldn't change too much as I have moved on to much more interesting things in the last few months since my last post.</p>
+        <p>  We’ve been trying to convert a few Windows 2000 SP4 server to a VMWare machine for a while and running into the same issue.  I would always get a MODE<em>EXCEPTION</em>NOT_HANDLED BSOD right after the login screen would appear.  I tried the normal fixes listed on the VMWare website including the right SP4 rollup 1 v2 and checking the versions of scsiport.sys.  Fortunately, I stumbled across this wonderful article: <a href="http://www.networkworld.com/news/2005/041105-windows-crash.html?page=1">http://www.networkworld.com/news/2005/041105-windows-crash.html?page=1</a> I set the virtual machine to a kernel mode dump and let it BSOD as recommended by the article.  I then copied to memory.dmp file to my Windows 7 workstation where I had installed the debugging tools referenced in the article.  I quickly identified usbsp.sys as the offending driver.  I renamed it on the virtual and rebooted.  Result?  Perfect!  I will definitely make sure I use this in the future to get a handle on blue screens when they pop up. Here is the relevant data from the process with the info highlighted in red.   How cool is that?</p>
 
-<p>Recently my wife and I got a new dog, Cooper. He is a mutt with mostly Wheaton Terrier and Wiredhaired Pointing Griffon. We are enjoying our time with him tremendously now.</p>
+<table border="1" cellpadding="2" cellspacing="0" width="400"><tbody><tr><td valign="top" width="398">EXCEPTION_PARAMETER1:  00000000EXCEPTION_PARAMETER2:  00000000 ERROR_CODE: (NTSTATUS) 0 - STATUS_WAIT_0 BUGCHECK_STR:  0x1E_0 DEFAULT_BUCKET_ID:  DRIVER_FAULT PROCESS_NAME:  System LAST_CONTROL_TRANSFER:  from f2695af5 to 8042be0b STACK_TEXT: f245fc78 f2695af5 0000001e 00000001 804b1cd8 nt!KeBugCheck+0xf WARNING: Stack unwind information not available. Following frames may be wrong. f245fc90 804b1d5e 828696f0 82614000 f219fd08 usbsp+0xaf5 f245fd58 804b1f9f 0000008c 82614000 f219fd08 nt!IopLoadDriver+0x672 f245fd78 80417b47 f219fd08 00000000 00000000 nt!IopLoadUnloadDriver+0x3f f245fda8 80457838 f219fd08 00000000 00000000 nt!ExpWorkerThread+0xaf f245fddc 8046c8e6 80417a98 00000001 00000000 nt!PspSystemThreadStartup+0x54 00000000 00000000 00000000 00000000 00000000 nt!KiThreadStartup+0x16 STACK_COMMAND:  kb FOLLOWUP_IP: usbsp+af5 f2695af5 8d45f4          lea     eax,[ebp-0Ch] SYMBOL_STACK_INDEX:  1 SYMBOL_NAME:  usbsp+af5 FOLLOWUP_NAME:  MachineOwner <span style="color: #ff0000;">MODULE_NAME: usbsp</span><span style="color: #ff0000;">IMAGE_NAME:  usbsp.sys</span> DEBUG_FLR_IMAGE_TIMESTAMP:  3cc859dd FAILURE_BUCKET_ID:  0x1E_0_usbsp+af5 BUCKET_ID:  0x1E_0_usbsp+af5 Followup: MachineOwner</td></tr></tbody></table>
     </section>
     <footer class="post-indexfooter">
-        <i class="fa fa-comments"></i> <a href="../../2014/10/22/moving-my-blog-to-github-pages/index.html#disqus_thread">Comments</a>
+        <i class="fa fa-comments"></i> <a href="../../2012/09/28/p2v-conversion-failure-fixed/index.html#disqus_thread">Comments</a>
     </footer>
 </article>
 

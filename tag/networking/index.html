@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+
+    <title>networking - David Rancourt</title>
+    <meta name="description" content="" />
+
+    <meta name="HandheldFriendly" content="True" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <link rel="shortcut icon" href="http://localhost/assets/favicon.png?v=f2914ea84c">
+
+    <link rel="stylesheet" type="text/css" href="../../assets/css/screen.css?v=f2914ea84c" />
+    <link href='http://fonts.googleapis.com/css?family=Open+Sans:400,700' rel='stylesheet' type='text/css'>
+
+    <meta name="generator" content="Ghost 0.5" />
+<link rel="alternate" type="application/rss+xml" title="David Rancourt" href="../../rss/index.html">
+<link rel="canonical" href="http://david-rancourt.com/tag/networking/" />
+
+    <link href="http://netdna.bootstrapcdn.com/font-awesome/4.0.3/css/font-awesome.css" rel="stylesheet">
+
+    <link rel="stylesheet" type="text/css" href="../../assets/css/prism.css?v=f2914ea84c" />
+
+    <script>
+      (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+      (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+      m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+      })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+    
+      ga('create', 'UA-23400112-1', 'david-rancourt.com');
+      ga('send', 'pageview');
+    
+    </script>
+</head>
+
+<body class="tag-template tag-networking">
+
+    <div id="sidebar" >
+        <div id="sidebar-content" class="inner">
+            
+            <h2 class="blog-title"><a href="http://david-rancourt.com">David Rancourt</a></h1>
+            <h3 class="blog-description">Thoughts, stories and ideas.</h2>
+
+            <form id="search">
+                <input id="search-field" placeholder="Search"/>
+            </form>
+
+            <div id="sidebar-links">
+                <ul id="subscription-links">
+                    <li><a target="_blank" href="http://david-rancourt.com/rss/"><i class="fa fa-rss"></i> Subscribe via RSS</a></li>
+                    <!-- No support yet
+                    <li><a target="_blank" href=" "><i class="fa fa-envelope"></i> Subscribe via email<a></li>
+                    -->
+                </ul>
+                <ul id="sidebar-internal">
+                    <!-- For 'About' and other pages -->
+                </ul>
+                <ul id="sidebar-external">
+                    <li class="external-link"><a href="https://github.com/maskedman"><i class="fa fa-github"></i> GitHub</a></li>
+                    <li class="external-link"><a href="https://www.linkedin.com/in/davidrancourt"><i class="fa fa-linkedin"></i> LinkedIn</a></li>
+                    <li class="external-link"><a href="https://twitter.com/dave4035"><i class="fa fa-twitter"></i> Twitter</a></li>
+                    <li class="external-link"><a href="https://plus.google.com/u/0/+DavidRancourtJr"><i class="fa fa-google-plus"></i> Google+</a></li>
+                    <li class="external-link"><a target="_blank" href="mailto:drancourt@david-rancourt.com"><i class="fa fa-envelope"></i> Contact</a></li>
+                </ul>
+            </div>
+
+            <footer class="site-footer">
+                <section class="copyright">&copy; 2014 <a href="mailto:drancourt@david-rancourt.com">David Rancourt Jr.</a> &bull; All rights reserved.
+</section>
+                <section class="poweredby">Proudly published with <a class="icon-ghost" href="https://ghost.org">Ghost</a></section>
+            </footer>
+        </div>
+    </div>
+
+    <main>
+        <section id="results"></section>
+        
+
+<header class="tag-archive-header">
+    <h4><i class="fa fa-tag"></i><span class="tag-archive-header-name">networking</span></h4>
+</header>
+
+
+<article class="post tag-esxi tag-flexlm tag-hardware tag-license-server tag-mac-address tag-networking tag-virtualization tag-vmware tag-windows-server">
+    <header class="post-header">
+        <div class="post-meta">
+            <span class="post-time">
+                <i class='fa fa-calendar'></i>
+                <time datetime="2012-10-09" class="timeago">2 years ago</time>
+                <time datetime="2012-10-09" class="fulldate">October 9th, 2012</time>
+            </span>
+            <br><i class='fa fa-tag'></i> <a href="../esxi/index.html">ESXi</a> · <a href="../flexlm/index.html">FlexLM</a> · <a href="../hardware/index.html">Hardware</a> · <a href="../license-server/index.html">License Server</a> · <a href="../mac-address/index.html">MAC Address</a> · <a href="index.html">networking</a> · <a href="../virtualization/index.html">virtualization</a> · <a href="../vmware/index.html">vmware</a> · <a href="../windows-server/index.html">Windows Server</a>
+        </div>
+        <h2 class="post-title"><a href="../../2012/10/09/esxi-vm-need-to-manually-change-mac-address/index.html">ESXi VM need to manually change MAC Address</a></h2>
+
+    </header>
+    <section class="post-content">
+        <p>Today, I had to deal with a FlexLM Licensing server issue which resulted from a VM which had it's NIC configured for the SAN's VLAN rather than for the production VLAN which caused the server to have some considerable amounts of downtime. I will talk about the setting up my SAN on a different VLAN from the rest of my production network in another post. In VMWare ESXi vSphere console for the VM host server which my guest VM was hosted on I attempted to change the MAC address of a specific NIC so the license server would work correctly. Well I was able to force this in ESXi in a previous version of ESXi 3.5 which allowed me to use any MAC address that I wanted to use. Well in ESXi 4.1 you can't do that anymore as it forces you to only modify the last 6 digits of the MAC address rather than the whole set. My work around evolved below:</p>
+
+<p><a href="http://david-rancourt.com/2012/esxi-vm-need-to-manually-change-mac-address/esximacdef/"><img src="http://res.cloudinary.com/david-rancourt-com/image/upload/v1414557778/esximacdef_tpckpx.png" alt="" title="esximacdef" /></a>As you notice in the above figure, the MAC Address is a random address given by my ESXi server. I need to bypass this and force a MAC Address from a NIC that I am not using anymore on an old server that I needed to move my FlexLM Licensing from. To accomplish this I went into the NIC's Advanced configuration in the driver settings:</p>
+
+<p><a href="http://david-rancourt.com/2012/esxi-vm-need-to-manually-change-mac-address/macbypass/"><img src="http://res.cloudinary.com/david-rancourt-com/image/upload/v1414557778/macbypass_diwdbl.png" alt="" title="macbypass" /></a></p>
+
+<p>This allowed me to set the MAC Address for the NIC and forces this address over the one set by ESXi. </p>
+
+<p><span style="color: #ff0000;">NOTE: I have confirmed that this setup works with FlexLM on both Windows Server 2003 and Server 2008. I have not yet tested on Windows Server 2012. <br />
+</span> <br />
+Also make note that: <span style="color: #ff0000;">You can never fire up that NIC ever again on your old server. Even if you plan to re-purpose it unless you are able to change it's MAC Address manually or install a new NIC as firing up that NIC will cause the above setup to fail miserably as you will have tons of trouble connecting to the new server from the old one.</span></p>
+    </section>
+    <footer class="post-indexfooter">
+        <i class="fa fa-comments"></i> <a href="../../2012/10/09/esxi-vm-need-to-manually-change-mac-address/index.html#disqus_thread">Comments</a>
+    </footer>
+</article>
+
+
+<article class="post tag-dns tag-hacking tag-network-security tag-networking tag-security">
+    <header class="post-header">
+        <div class="post-meta">
+            <span class="post-time">
+                <i class='fa fa-calendar'></i>
+                <time datetime="2012-10-01" class="timeago">2 years ago</time>
+                <time datetime="2012-10-01" class="fulldate">October 1st, 2012</time>
+            </span>
+            <br><i class='fa fa-tag'></i> <a href="../dns/index.html">DNS</a> · <a href="../hacking/index.html">hacking</a> · <a href="../network-security/index.html">network security</a> · <a href="index.html">networking</a> · <a href="../security/index.html">security</a>
+        </div>
+        <h2 class="post-title"><a href="../../2012/10/01/why-you-should-change-your-default-passwords/index.html">Why you should change your default passwords</a></h2>
+
+    </header>
+    <section class="post-content">
+        <p>So you bought that shiny new wireless router or your ISP gave you a new one after signing on to a new contract with them. The very first things many people do is personalize the SSIDs on the device so that they can distinguish their wireless network from their neighbor's wireless but forget to overlook a major security concern.  In the article presented by Sophos, over 4.5 million DSL subsribers who got new modems from the dominant ISP in Brazil got duped because they didn't bother to change the default password on the device, however Sophos goes further in-depth in the situation by detailing the process the attackers used to change the DNS servers to malicious DNS servers which then points to malicious sites even though the site is legitimate. In the article it details that the DNS record for google in Brazil is google.com.br which is the legitimate domain name for the Brazilian version of Google. The hackers changed the DNS records by simply gaining access to all of the modems and the website looks legitimate when visiting it, however it asked users to download a file which the real Google never does. Moral of the story is to change your network device passwords as soon as you set them up because if they get modified without your knowledge you can be on the hook for something much more serious than simply changing your DNS to malicious DNS. Story from Sophos: <a href="http://nakedsecurity.sophos.com/2012/10/01/hacked-routers-brazil-vb2012/?utm_source=feedburner&amp;utm_medium=feed&amp;utm_campaign=Feed%3A+nakedsecurity+%28Naked+Security+-+Sophos%29">source</a></p>
+    </section>
+    <footer class="post-indexfooter">
+        <i class="fa fa-comments"></i> <a href="../../2012/10/01/why-you-should-change-your-default-passwords/index.html#disqus_thread">Comments</a>
+    </footer>
+</article>
+
+
+<article class="post tag-dell tag-networking tag-powerconnect tag-powerconnect-6248 tag-switches tag-switching">
+    <header class="post-header">
+        <div class="post-meta">
+            <span class="post-time">
+                <i class='fa fa-calendar'></i>
+                <time datetime="2012-09-29" class="timeago">2 years ago</time>
+                <time datetime="2012-09-29" class="fulldate">September 29th, 2012</time>
+            </span>
+            <br><i class='fa fa-tag'></i> <a href="../dell/index.html">Dell</a> · <a href="index.html">networking</a> · <a href="../powerconnect/index.html">PowerConnect</a> · <a href="../powerconnect-6248/index.html">PowerConnect 6248</a> · <a href="../switches/index.html">switches</a> · <a href="../switching/index.html">Switching</a>
+        </div>
+        <h2 class="post-title"><a href="../../2012/09/29/update-dell-powerconnect-firmware-via-ssh-and-sftp/index.html">Update Dell PowerConnect Firmware via SSH and SFTP</a></h2>
+
+    </header>
+    <section class="post-content">
+        <p>You can use PuTTY to telnet into your Dell PowerConnect 62xx switches to configure them and install new firmware. The CLI is much more powerful than the web interface of the 62xx series switches. This setup is not limited to stacking modules but in my example I am using multiple switches in a stack configuration so it only shows up as 1 switch in my configuration panel.</p>
+
+<p>Download the Dell Switch Firmware from <a href="http://support.dell.com">http://support.dell.com</a> and enter the service tag of your switch to get the specific firmware for the model.</p>
+
+<p>Download TFTP64server from here: <a href="http://tftpd32.jounin.net/tftpd32_download.html">http://tftpd32.jounin.net/tftpd32_download.html</a></p>
+
+<p>Setup TFTP64server</p>
+
+<p>Create a directory in C:\ root of your computer then make the following directories:  </p>
+
+<pre><code class="language-markup">C:\switches\firmware  
+</code></pre>
+
+<p>Copy the dell firmware files to the firmware directory. <br />
+Commands for Telnet on 62xx switches:</p>
+
+<p>Open Putty in Telnet mode to IP address of your Power Connect switch  </p>
+
+<pre><code class="language-markup">THIS SYSTEM IS PROPERTY OF XXXXX COMPANY XXXXX INFORMATION TECHNOLOGY DEPARTMENT. UNAUTHORIZED USE OF THIS DEVICE IS NOT PERMITTED UNDER THE TERMS OF THE ACCEPTABLE USE POLICY.Press 'y' to continue (within 30 seconds) (y/n) y  
+User:admin  
+Password:*********  
+SW-ENG&gt;en  
+SW-ENG#show version  
+Image Descriptions  
+image1 : default image  
+image2 :
+
+Images currently available on Flash  
+--------------------------------------------------------------------
+unit image1 image2 current-active next-active  
+--------------------------------------------------------------------
+1 3.2.0.7 3.2.1.3 image1 image1  
+2 3.2.0.7 3.2.1.3 image1 image1  
+SW-ENG#copy tftp://&lt;yourTFTPserverIP&gt;/&lt;firmwareName&gt;.stk imageMode...........................................  
+TFTPSet TFTP Server IP............................. &lt;yourTFTPserverIP&gt;TFTP Path...................................... ./  
+TFTP Filename.................................. &lt;firmwareName&gt;.stk  
+Data Type...................................... Code  
+Destination Filename........................... image
+
+Management access will be blocked for the duration of the transferAre you sure you want to start? (y/n) y
+
+TFTP code transfer starting9718796 bytes transferredFile reception completeVerifying file...File contents are valid.
+
+Distributing the code to the members of the stack!File transfer operation completed successfully.
+
+SW-ENG#show version
+
+Image Descriptions  
+image1 : default image  
+image2 :
+
+Images currently available on Flash  
+--------------------------------------------------------------------
+unit image1 image2 current-active next-active  
+--------------------------------------------------------------------
+1 3.2.0.7 3.3.4.1 image1 image1  
+2 3.2.0.7 3.3.4.1 image1 image1
+
+SW-ENG#boot system image2  
+Activating image image2 ..  
+SW-ENG#update bootcode  
+Update bootcode and reset (Y/N)? Y
+
+Issuing boot code update command...  
+</code></pre>
+
+<p>After hitting the 'Y' key on the Update bootcode and reset, the switch should be rebooted into the latest firmware. To confirm you can <code>show version</code></p>
+    </section>
+    <footer class="post-indexfooter">
+        <i class="fa fa-comments"></i> <a href="../../2012/09/29/update-dell-powerconnect-firmware-via-ssh-and-sftp/index.html#disqus_thread">Comments</a>
+    </footer>
+</article>
+
+
+<article class="post tag-dell-6248 tag-dell-powerconnect tag-lag-groups tag-networking tag-port-fast tag-rapid-stp tag-switching tag-vlan">
+    <header class="post-header">
+        <div class="post-meta">
+            <span class="post-time">
+                <i class='fa fa-calendar'></i>
+                <time datetime="2012-09-28" class="timeago">2 years ago</time>
+                <time datetime="2012-09-28" class="fulldate">September 28th, 2012</time>
+            </span>
+            <br><i class='fa fa-tag'></i> <a href="../dell-6248/index.html">Dell 6248</a> · <a href="../dell-powerconnect/index.html">Dell PowerConnect</a> · <a href="../lag-groups/index.html">LAG Groups</a> · <a href="index.html">networking</a> · <a href="../port-fast/index.html">Port Fast</a> · <a href="../rapid-stp/index.html">Rapid STP</a> · <a href="../switching/index.html">Switching</a> · <a href="../vlan/index.html">VLAN</a>
+        </div>
+        <h2 class="post-title"><a href="../../2012/09/28/dell-powerconnect-switches-packet-loss-issues/index.html">Dell PowerConnect Switches Packet Loss Issues</a></h2>
+
+    </header>
+    <section class="post-content">
+        <p>  I upgraded many Dell 6248 switches to the latest and greatest firmware over the weekend.  I have been experiencing more packet loss than I would ever want to see on an internal LAN.  Connecting from the servers on the same switch would yield a periodic lost packet for no apparent reason.  There were some clues on the switch with logged “spanning tree topology changes” in the log file.  During this log event, I would drop packets not only on the local switch, but other connecting switches as well.  All of these switches are configured with Rapid STP, LAG groups between them, and two VLANs. Reading up on the dell site, I saw some good advice entailing turning on “Port Fast” on every port that isn’t an edge link between switches, namely ports connected to switches and servers.  This advice appears to be valid.  With the latest firmware I could go to Global STP settings and simply enable Port Fast.  It was smart enough to not turn it on for the LAG groups and switch interconnects with multi-vlans on them.  So far so good…over the past few hours I haven’t had any dropped packets. <a href="http://david-rancourt.com/2012/dell-powerconnect-switches-packet-loss-issues/dellswitchpktlossdemo/"><img src="http://res.cloudinary.com/david-rancourt-com/image/upload/v1414557779/dellswitchpktlossdemo_efln5m.png" alt="" title="dellswitchpktlossdemo" /></a></p>
+    </section>
+    <footer class="post-indexfooter">
+        <i class="fa fa-comments"></i> <a href="../../2012/09/28/dell-powerconnect-switches-packet-loss-issues/index.html#disqus_thread">Comments</a>
+    </footer>
+</article>
+
+
+<article class="post tag-dlink-aps tag-firewall tag-guest-network tag-guest-services tag-networking tag-sonicwall tag-vlan">
+    <header class="post-header">
+        <div class="post-meta">
+            <span class="post-time">
+                <i class='fa fa-calendar'></i>
+                <time datetime="2012-09-28" class="timeago">2 years ago</time>
+                <time datetime="2012-09-28" class="fulldate">September 28th, 2012</time>
+            </span>
+            <br><i class='fa fa-tag'></i> <a href="../dlink-aps/index.html">DLink AP&#39;s</a> · <a href="../firewall/index.html">firewall</a> · <a href="../guest-network/index.html">Guest Network</a> · <a href="../guest-services/index.html">Guest Services</a> · <a href="index.html">networking</a> · <a href="../sonicwall/index.html">sonicwall</a> · <a href="../vlan/index.html">VLAN</a>
+        </div>
+        <h2 class="post-title"><a href="../../2012/09/28/guest-services-on-sonicwall-with-3rd-party-aps/index.html">Guest Services on Sonicwall with 3rd Party AP&#x27;s</a></h2>
+
+    </header>
+    <section class="post-content">
+        <p>  Problem:  We are using an old D-Link hotspot to allow guest access in our building.  This D-Link feed a VLan that is distributed to 7 D-Link access points.  These APs support multiple SSIDs on different VLAN making them very convenient for distributing multiple wireless networks around the facility.  The new Sonicwall has Guest Services, but how can we make it all work together?  It seems like Sonicwall wants us to use their own proprietary (and expensive) access points. In our server room we have a port dedicated to feeding the VLAN through the building.  I connected that port to X5 on our Sonicwall TZ210.  Now the configuration on the SW. First, let’s add a new Zone and call it Guest.  For initial testing I am leaving the security settings turned off. <img src="http://res.cloudinary.com/david-rancourt-com/image/upload/v1414557780/sw3ptyguestsetup02_edxecs.png" alt="" title="sw3ptyguestsetup02" /> <img src="http://res.cloudinary.com/david-rancourt-com/image/upload/v1414557781/sw3ptyguestsetup01_qxgvdr.png" alt="" title="sw3ptyguestsetup01" /> Now let’s configure port X5 to be in our Guest zone with a static IP address of 192.168.1.1 on a standard Class C subnet.  Do this from Interfaces.  I have enabled management and ping plus user logins on this interface.  After testing I will disable the management except for Ping.  Make sure you enable login so your users can actually log in! <a href="http://david-rancourt.com/2012/guest-services-on-sonicwall-with-3rd-party-aps/sw3ptyguestsetup03/"><img src="http://res.cloudinary.com/david-rancourt-com/image/upload/v1414557780/sw3ptyguestsetup03_ptstgp.png" alt="" title="sw3ptyguestsetup03" /></a> Verify a firewall rule exists for traffic from the GUEST to WAN zones.  With my firmware, this was automatically created.  I enabled some bandwidth limiting on it as well. <a href="http://david-rancourt.com/2012/guest-services-on-sonicwall-with-3rd-party-aps/sw3ptyguestsetup04/"><img src="http://res.cloudinary.com/david-rancourt-com/image/upload/v1414557780/sw3ptyguestsetup04_odxsdc.png" alt="" title="sw3ptyguestsetup04" /></a> Now turn on the DHCP server for this interface with the appropriate settings.  Note that it is configured for interface X5.  Make sure the DHCP server is actually enabled in the top check box.  I forgot this part the first time around. <a href="http://david-rancourt.com/2012/guest-services-on-sonicwall-with-3rd-party-aps/sw3ptyguestsetup05/"><img src="http://res.cloudinary.com/david-rancourt-com/image/upload/v1414557779/sw3ptyguestsetup05_ecnc61.png" alt="" title="sw3ptyguestsetup05" /></a> Anyone that connects to the VLAN or physical network on X5 should now receive a DHCP address in your range and be greeted in a web browser with the Sonicwall Login page. Adding users is very easy!  Just head down to Users|Guest Accounts and you can have them automatically generated for you or create your own.  You can also specify how long they are active for.  You can also click on Guest Status to see your logged in guests!</p>
+    </section>
+    <footer class="post-indexfooter">
+        <i class="fa fa-comments"></i> <a href="../../2012/09/28/guest-services-on-sonicwall-with-3rd-party-aps/index.html#disqus_thread">Comments</a>
+    </footer>
+</article>
+
+
+<nav class="pagination" role="navigation">
+    <span class="page-number">Page 1 of 1</span>
+</nav>
+
+<script type="text/javascript">
+    /* * * CONFIGURATION VARIABLES: EDIT BEFORE PASTING INTO YOUR WEBPAGE * * */
+    var disqus_shortname = 'ub3rdud3'; // required: replace example with your forum shortname
+
+    /* * * DON'T EDIT BELOW THIS LINE * * */
+    (function () {
+        var s = document.createElement('script'); s.async = true;
+        s.type = 'text/javascript';
+        s.src = '//' + disqus_shortname + '.disqus.com/count.js';
+        (document.getElementsByTagName('HEAD')[0] || document.getElementsByTagName('BODY')[0]).appendChild(s);
+    }());
+</script>
+    </main>
+
+    <script src="../../public/jquery.min.js?v=f2914ea84c"></script>
+
+    <script type="text/javascript" src="../../assets/js/jquery.fitvids.js?v=f2914ea84c"></script>
+    <script type="text/javascript" src="../../assets/js/index.js?v=f2914ea84c"></script>
+    <script type="text/javascript" src="../../assets/js/prism.js?v=f2914ea84c"></script>
+
+    <script src="../../assets/js/jquery.ghostHunter.min.js?v=f2914ea84c"></script>
+    <script>
+        $("#search-field").ghostHunter({
+            results : "#results",
+            onKeyUp : true,
+            zeroResultsInfo : false
+        });
+    </script>
+</body>
+
+</html>

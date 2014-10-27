@@ -5,7 +5,7 @@
     <meta charset="utf-8" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
 
-    <title>Moving my blog to GitHub pages</title>
+    <title>Update Dell PowerConnect Firmware via SSH and SFTP</title>
     <meta name="description" content="" />
 
     <meta name="HandheldFriendly" content="True" />
@@ -18,7 +18,7 @@
 
     <meta name="generator" content="Ghost 0.5" />
 <link rel="alternate" type="application/rss+xml" title="David Rancourt" href="../../../../rss/index.html">
-<link rel="canonical" href="http://david-rancourt.com/2014/10/22/moving-my-blog-to-github-pages/" />
+<link rel="canonical" href="http://david-rancourt.com/2012/09/29/update-dell-powerconnect-firmware-via-ssh-and-sftp/" />
 
     <link href="http://netdna.bootstrapcdn.com/font-awesome/4.0.3/css/font-awesome.css" rel="stylesheet">
 
@@ -36,7 +36,7 @@
     </script>
 </head>
 
-<body class="post-template tag-ghost-tag tag-github-pages tag-buster">
+<body class="post-template tag-dell tag-networking tag-powerconnect tag-powerconnect-6248 tag-switches tag-switching">
 
     <div id="sidebar" >
         <div id="sidebar-content" class="inner">
@@ -79,24 +79,88 @@
         <section id="results"></section>
         
 
-<article class="post tag-ghost-tag tag-github-pages tag-buster featured">
+<article class="post tag-dell tag-networking tag-powerconnect tag-powerconnect-6248 tag-switches tag-switching">
 
 
         <div class="post-meta">
             <span class="post-time">
                 <i class='fa fa-calendar'></i>
-                <time datetime="2014-10-22" class="timeago">4 days ago</time>
-                <time datetime="2014-10-22" class="fulldate">October 22nd, 2014</time>
+                <time datetime="2012-09-29" class="timeago">2 years ago</time>
+                <time datetime="2012-09-29" class="fulldate">September 29th, 2012</time>
             </span>
-            <br><i class='fa fa-tag'></i> <a href="../../../../tag/ghost-tag/index.html">ghost</a> · <a href="../../../../tag/github-pages/index.html">github-pages</a> · <a href="../../../../tag/buster/index.html">buster</a>
+            <br><i class='fa fa-tag'></i> <a href="../../../../tag/dell/index.html">Dell</a> · <a href="../../../../tag/networking/index.html">networking</a> · <a href="../../../../tag/powerconnect/index.html">PowerConnect</a> · <a href="../../../../tag/powerconnect-6248/index.html">PowerConnect 6248</a> · <a href="../../../../tag/switches/index.html">switches</a> · <a href="../../../../tag/switching/index.html">Switching</a>
         </div>
 
-        <h1 class="post-title">Moving my blog to GitHub pages</h1>
+        <h1 class="post-title">Update Dell PowerConnect Firmware via SSH and SFTP</h1>
 
         <section class="post-content">
-            <p>I have moved my blog to GitHub pages after taking down my last vps host as it was starting to cost too much money for just running a wordpress blog. All of my posts that were previously hosted on my old server will eventually updated and moved into this blogroll. I look forward to spending less time on maintenace of the servers outside of my office hours and just focus on my personal things when I am away from the office. The technical nature of the blog shouldn't change too much as I have moved on to much more interesting things in the last few months since my last post.</p>
+            <p>You can use PuTTY to telnet into your Dell PowerConnect 62xx switches to configure them and install new firmware. The CLI is much more powerful than the web interface of the 62xx series switches. This setup is not limited to stacking modules but in my example I am using multiple switches in a stack configuration so it only shows up as 1 switch in my configuration panel.</p>
 
-<p>Recently my wife and I got a new dog, Cooper. He is a mutt with mostly Wheaton Terrier and Wiredhaired Pointing Griffon. We are enjoying our time with him tremendously now.</p>
+<p>Download the Dell Switch Firmware from <a href="http://support.dell.com">http://support.dell.com</a> and enter the service tag of your switch to get the specific firmware for the model.</p>
+
+<p>Download TFTP64server from here: <a href="http://tftpd32.jounin.net/tftpd32_download.html">http://tftpd32.jounin.net/tftpd32_download.html</a></p>
+
+<p>Setup TFTP64server</p>
+
+<p>Create a directory in C:\ root of your computer then make the following directories:  </p>
+
+<pre><code class="language-markup">C:\switches\firmware  
+</code></pre>
+
+<p>Copy the dell firmware files to the firmware directory. <br />
+Commands for Telnet on 62xx switches:</p>
+
+<p>Open Putty in Telnet mode to IP address of your Power Connect switch  </p>
+
+<pre><code class="language-markup">THIS SYSTEM IS PROPERTY OF XXXXX COMPANY XXXXX INFORMATION TECHNOLOGY DEPARTMENT. UNAUTHORIZED USE OF THIS DEVICE IS NOT PERMITTED UNDER THE TERMS OF THE ACCEPTABLE USE POLICY.Press 'y' to continue (within 30 seconds) (y/n) y  
+User:admin  
+Password:*********  
+SW-ENG&gt;en  
+SW-ENG#show version  
+Image Descriptions  
+image1 : default image  
+image2 :
+
+Images currently available on Flash  
+--------------------------------------------------------------------
+unit image1 image2 current-active next-active  
+--------------------------------------------------------------------
+1 3.2.0.7 3.2.1.3 image1 image1  
+2 3.2.0.7 3.2.1.3 image1 image1  
+SW-ENG#copy tftp://&lt;yourTFTPserverIP&gt;/&lt;firmwareName&gt;.stk imageMode...........................................  
+TFTPSet TFTP Server IP............................. &lt;yourTFTPserverIP&gt;TFTP Path...................................... ./  
+TFTP Filename.................................. &lt;firmwareName&gt;.stk  
+Data Type...................................... Code  
+Destination Filename........................... image
+
+Management access will be blocked for the duration of the transferAre you sure you want to start? (y/n) y
+
+TFTP code transfer starting9718796 bytes transferredFile reception completeVerifying file...File contents are valid.
+
+Distributing the code to the members of the stack!File transfer operation completed successfully.
+
+SW-ENG#show version
+
+Image Descriptions  
+image1 : default image  
+image2 :
+
+Images currently available on Flash  
+--------------------------------------------------------------------
+unit image1 image2 current-active next-active  
+--------------------------------------------------------------------
+1 3.2.0.7 3.3.4.1 image1 image1  
+2 3.2.0.7 3.3.4.1 image1 image1
+
+SW-ENG#boot system image2  
+Activating image image2 ..  
+SW-ENG#update bootcode  
+Update bootcode and reset (Y/N)? Y
+
+Issuing boot code update command...  
+</code></pre>
+
+<p>After hitting the 'Y' key on the Update bootcode and reset, the switch should be rebooted into the latest firmware. To confirm you can <code>show version</code></p>
         </section>
 
         <footer class="post-footer">
@@ -118,15 +182,15 @@
             <section class="share">
                 <h4>Share this post</h4>
                 <div class="share-icons">
-                    <a class="fa fa-twitter-square" href="https://twitter.com/share?text=Moving%20my%20blog%20to%20GitHub%20pages&amp;url=http://david-rancourt.com/2014/10/22/moving-my-blog-to-github-pages/"
+                    <a class="fa fa-twitter-square" href="https://twitter.com/share?text=Update%20Dell%20PowerConnect%20Firmware%20via%20SSH%20and%20SFTP&amp;url=http://david-rancourt.com/2012/09/29/update-dell-powerconnect-firmware-via-ssh-and-sftp/"
                         onclick="window.open(this.href, 'twitter-share', 'width=550,height=235');return false;">
                         <span class="hidden">Twitter</span>
                     </a>
-                    <a class="fa fa-facebook-square" href="https://www.facebook.com/sharer/sharer.php?u=http://david-rancourt.com/2014/10/22/moving-my-blog-to-github-pages/"
+                    <a class="fa fa-facebook-square" href="https://www.facebook.com/sharer/sharer.php?u=http://david-rancourt.com/2012/09/29/update-dell-powerconnect-firmware-via-ssh-and-sftp/"
                         onclick="window.open(this.href, 'facebook-share','width=580,height=296');return false;">
                         <span class="hidden">Facebook</span>
                     </a>
-                    <a class="fa fa-google-plus-square" href="https://plus.google.com/share?url=http://david-rancourt.com/2014/10/22/moving-my-blog-to-github-pages/"
+                    <a class="fa fa-google-plus-square" href="https://plus.google.com/share?url=http://david-rancourt.com/2012/09/29/update-dell-powerconnect-firmware-via-ssh-and-sftp/"
                        onclick="window.open(this.href, 'google-plus-share', 'width=490,height=530');return false;">
                         <span class="hidden">Google+</span>
                     </a>

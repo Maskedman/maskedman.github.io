@@ -1,4 +1,302 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<rss xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:content="http://purl.org/rss/1.0/modules/content/" xmlns:atom="http://www.w3.org/2005/Atom" version="2.0"><channel><title><![CDATA[David Rancourt]]></title><description><![CDATA[Thoughts, stories and ideas.]]></description><link>http://david-rancourt.com/</link><generator>Ghost 0.5</generator><lastBuildDate>Thu, 23 Oct 2014 21:51:07 GMT</lastBuildDate><atom:link href="http://david-rancourt.com/rss/" rel="self" type="application/rss+xml"/><ttl>60</ttl><item><title><![CDATA[Moving my blog to GitHub pages]]></title><description><![CDATA[<p>I have moved my blog to GitHub pages after taking down my last vps host as it was starting to cost too much money for just running a wordpress blog. All of my posts that were previously hosted on my old server will eventually updated and moved into this blogroll. I look forward to spending less time on maintenace of the servers outside of my office hours and just focus on my personal things when I am away from the office. The technical nature of the blog shouldn't change too much as I have moved on to much more interesting things in the last few months since my last post.</p>
+<rss xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:content="http://purl.org/rss/1.0/modules/content/" xmlns:atom="http://www.w3.org/2005/Atom" version="2.0"><channel><title><![CDATA[David Rancourt]]></title><description><![CDATA[Thoughts, stories and ideas.]]></description><link>http://david-rancourt.com/</link><generator>Ghost 0.5</generator><lastBuildDate>Mon, 27 Oct 2014 09:10:18 GMT</lastBuildDate><atom:link href="http://david-rancourt.com/rss/" rel="self" type="application/rss+xml"/><ttl>60</ttl><item><title><![CDATA[Moving my blog to GitHub pages]]></title><description><![CDATA[<p>I have moved my blog to GitHub pages after taking down my last vps host as it was starting to cost too much money for just running a wordpress blog. All of my posts that were previously hosted on my old server will eventually updated and moved into this blogroll. I look forward to spending less time on maintenace of the servers outside of my office hours and just focus on my personal things when I am away from the office. The technical nature of the blog shouldn't change too much as I have moved on to much more interesting things in the last few months since my last post.</p>
 
-<p>Recently my wife and I got a new dog, Cooper. He is a mutt with mostly Wheaton Terrier and Wiredhaired Pointing Griffon. We are enjoying our time with him tremendously now.</p>]]></description><link>http://david-rancourt.com/2014/10/22/moving-my-blog-to-github-pages/</link><guid isPermaLink="false">8e953f58-d3c2-4067-9ad3-8edd5a9d451d</guid><category><![CDATA[ghost]]></category><category><![CDATA[github-pages]]></category><category><![CDATA[buster]]></category><dc:creator><![CDATA[David Rancourt]]></dc:creator><pubDate>Thu, 23 Oct 2014 03:39:41 GMT</pubDate></item></channel></rss>
+<p>Recently my wife and I got a new dog, Cooper. He is a mutt with mostly Wheaton Terrier and Wiredhaired Pointing Griffon. We are enjoying our time with him tremendously now.</p>]]></description><link>http://david-rancourt.com/2014/10/22/moving-my-blog-to-github-pages/</link><guid isPermaLink="false">8e953f58-d3c2-4067-9ad3-8edd5a9d451d</guid><category><![CDATA[ghost]]></category><category><![CDATA[github-pages]]></category><category><![CDATA[buster]]></category><dc:creator><![CDATA[David Rancourt]]></dc:creator><pubDate>Thu, 23 Oct 2014 03:39:41 GMT</pubDate></item><item><title><![CDATA[Unlocking Locked VM's in ESXi]]></title><description><![CDATA[<p>So one of your virtual machines either won't lock or got locked in ESXi and you need to fix it quickly? Well <a href="http://kb.vmware.com/selfservice/microsites/search.do?language=en_US&amp;cmd=displayKC&amp;externalId=10051">VMware's KB</a> can be pretty useful when it's direct and to the point. However I found it difficult to figure out after a bit of digging around in my ESXi system. So I thought I would clarify this for everyone here. Often times you'll probably see one of these errors:</p>
+
+<ul>
+<li>A virtual machine cannot power on.</li>
+<li>Powering on a virtual machine fails.</li>
+<li>Unable to power on a virtual machine.</li>
+<li>Adding an existing disk (VMDK) to a virtual machine that is already powered on fails with the error:</li>
+</ul>
+
+<pre><code class="language-markup">Failed to add disk scsi0:1. Failed to power on scsi0:1  
+</code></pre>
+
+<ul>
+<li>When Powering on the virtual machine you see one of these errors:</li>
+</ul>
+
+<p>Unable to open Swap File <br>
+ Unable to access a file since it is locked <br>
+ Unable to access a file <filename> since it is locked <br>
+ Unable to access Virtual machine configuration</filename></p>
+
+<ul>
+<li>In the <code>/var/log/vmkernel</code> log file, you see entries similar to:</li>
+</ul>
+
+<pre><code class="language-markup">WARNING: World: VM xxxx: xxx: Failed to open swap file &lt;path&gt;: Lock was not free  
+
+WARNING: World: VM xxxx: xxx: Failed to initialize swap file &lt;path&gt;  
+</code></pre>
+
+<ul>
+<li>When opening a console to the virtual machine, you receive this error:</li>
+</ul>
+
+<pre><code class="language-markup">Error connecting to &lt;path&gt;&lt;virtual machine&gt;, vmx because the VMX is not started  
+</code></pre>
+
+<ul>
+<li>Powering on the virtual machine results in the power on task remaining at 95% indefinitely.</li>
+<li>Cannot power on the virtual machine after deploying it from a template</li>
+<li>The virtual machine reports conflicting power states between VMware vCenter Server and the ESXi host console.</li>
+<li>Attempting to view or open the .vmx file using the <em>cat</em> or <em>vi</em> command reports the error:</li>
+</ul>
+
+<pre><code class="language-markup">cat: can't open '[name of vm].vmx': Invalid argument  
+</code></pre>
+
+<p>Any one of the above error statements that is output by your ESXi server there is an easy fix for it: The virtual machine files are commonly locked for run time use (i.e. when the host is running the machine) are usually any of the files in the <em><path><virtual machine=""></virtual></em> directory. The easiest way to identify the locked file is to attempt to power on the VM and you will see an error message that will give you the full path to the VM's directory plus the locked file. So the work around is as follows:</p>
+
+<ol>
+<li>Login to the ESXi host with SSH client (I use <a href="http://www.chiark.greenend.org.uk/~sgtatham/putty/download.html">PuTTY</a>).  </li>
+<li>Confirm that the virtual machine is registered on the server and obtain the full path to the VM. Run the command:  </li>
+</ol>
+
+<pre><code class="language-markup"># vmware-cmd -l
+</code></pre>
+
+<ol>
+<li>The out put returns a list of VM's registered to the host server. Should look something like this:  </li>
+</ol>
+
+<pre><code class="language-markup">[&lt;datastore&gt;] &lt;VMDIR&gt;/&lt;VMNAME&gt;.vmx
+</code></pre>
+
+<ol>
+<li>You need to move to the VM's working directory:  </li>
+</ol>
+
+<pre><code class="language-markup"># cd /vmfs/volumes/&lt;datastore&gt;/&lt;VMDIR&gt;
+</code></pre>
+
+<ol>
+<li>You can use any linux text editor to view the vmware.log file, near the end it will have more verbose output to your error.  </li>
+<li>The command is really easy to fix the whole unlock/lock issue for the whole directory:  </li>
+</ol>
+
+<pre><code class="language-markup">touch *  
+</code></pre>
+
+<p><span style="font-size: medium;"><span style="line-height: 24px;">You should now be able to start up your VM without issues.</span></span></p>]]></description><link>http://david-rancourt.com/2012/10/12/unlocking-locked-vms-in-esxi/</link><guid isPermaLink="false">8ef980f8-91a9-445b-9c33-dcf7a22182c9</guid><category><![CDATA[virtualization]]></category><category><![CDATA[vmware]]></category><dc:creator><![CDATA[David Rancourt]]></dc:creator><pubDate>Sat, 13 Oct 2012 01:33:39 GMT</pubDate></item><item><title><![CDATA[Get Dell Service Tag & Express Service Code From Linux & Windows]]></title><description><![CDATA[<p>First off I wanted to mention that I stole this article from this <a href="http://www.thegeekstuff.com/2008/10/view-dell-service-tag-and-express-service-code-from-linux-and-windows/#more-243">guy</a> as it is totally worth getting this information out there to the masses who support Dell hardware and have to reach out to Dell Support every now and then. This is an awesome trick for those times when you need to get in touch with Dell's technical support or to get drivers and other documentation from <a href="http://support.dell.com/">Dell Support</a>. I mainly use the Windows piece but will add the Linux after the jump.</p>
+
+<h3 id="1getdellservicetagonremotewindowssystemviardpvncetc">1. Get DELL Service Tag on remote Windows System via RDP/VNC etc.</h3>
+
+<pre><code class="language-markup">C:\wmic bios get serialnumber SerialNumber ABCDEF1  
+</code></pre>
+
+<p>The following command can give you more information such as the make, model, and service tag. C:\wmic csproduct get vendor,name,identifyingnumber IdentifyingNumber Name Vendor ABCDEF1 PowerEdge 2950 Dell Inc.</p>
+
+<h3 id="2getdellservicetagonremotewindowssystem">2. Get DELL Service Tag on remote Windows System</h3>
+
+<p>If VNC or Remote Desktop isn't available, you can execute the following command from your local machine to get the service tag of the remote machine.</p>
+
+<pre><code class="language-markup ">C:\wmic /user:administrator /note:remote-host bios get serialnumber  
+SerialNumber ABCDEF1  
+</code></pre>
+
+<p>[Note: replace remote-host with the machine name of your remote host.]</p>
+
+<h3 id="3getdellservicetagonremotelinuxsystem">3. Get DELL Service Tag on remote Linux System</h3>
+
+<p>Login to your Linux system using SSH. Use dmidecode on Linux to get service tag as shown.  </p>
+
+<pre><code class="language-markup">[remote-host]# dmidecode -s system-serial-number
+ABCDEF1  
+</code></pre>
+
+<h3 id="4getdellexpressservicecodefromyourservicetag">4. Get DELL Express Service Code from your Service Tag</h3>
+
+<p>Service Tag is a base-36 integer. Once you have your service tag, you can calculate your Express Service Code yourself. Express Service Code is a base-10 integer. Dell mainly uses the Service Code for support based in-call routing. When you call Dell support, it may ask you for your express service code which you can easily enter in your telephone in the dial pad, as it is a bunch of numbers. Use the following tools to find express service code from service tag and vice-versa.</p>
+
+<ol>
+<li><a href="http://www.creativyst.com/Doc/Articles/HT/Dell/DellPop.htm">Creativyst Dell-Number Widget</a>  </li>
+<li><a href="http://www.powerdog.com/dellconv.cgi">Dell PC service tag/code converter from PowerDog industries</a></li>
+</ol>
+
+<p>I have also tried this method on some of my other vendor equipment so far I have seen it work on the following: 1. IBM <br>
+2. HP Blades <br>
+3. HP Servers <br>
+4. Supermicro Servers</p>]]></description><link>http://david-rancourt.com/2012/10/09/get-dell-service-tag-express-service-code-from-linux-windows/</link><guid isPermaLink="false">9909a3dc-d2c2-492f-ba55-ca50aebfbb60</guid><category><![CDATA[Dell]]></category><category><![CDATA[Dell Service Tag]]></category><category><![CDATA[Express Service Code]]></category><category><![CDATA[Hardware]]></category><category><![CDATA[Remote Access]]></category><category><![CDATA[Remote CLI]]></category><category><![CDATA[Service Tag]]></category><category><![CDATA[Windows Server]]></category><dc:creator><![CDATA[David Rancourt]]></dc:creator><pubDate>Tue, 09 Oct 2012 22:55:50 GMT</pubDate></item><item><title><![CDATA[ESXi VM need to manually change MAC Address]]></title><description><![CDATA[<p>Today, I had to deal with a FlexLM Licensing server issue which resulted from a VM which had it's NIC configured for the SAN's VLAN rather than for the production VLAN which caused the server to have some considerable amounts of downtime. I will talk about the setting up my SAN on a different VLAN from the rest of my production network in another post. In VMWare ESXi vSphere console for the VM host server which my guest VM was hosted on I attempted to change the MAC address of a specific NIC so the license server would work correctly. Well I was able to force this in ESXi in a previous version of ESXi 3.5 which allowed me to use any MAC address that I wanted to use. Well in ESXi 4.1 you can't do that anymore as it forces you to only modify the last 6 digits of the MAC address rather than the whole set. My work around evolved below:</p>
+
+<p><a href="http://david-rancourt.com/2012/esxi-vm-need-to-manually-change-mac-address/esximacdef/"><img src="http://res.cloudinary.com/david-rancourt-com/image/upload/v1414557778/esximacdef_tpckpx.png" alt="" title="esximacdef"></a>As you notice in the above figure, the MAC Address is a random address given by my ESXi server. I need to bypass this and force a MAC Address from a NIC that I am not using anymore on an old server that I needed to move my FlexLM Licensing from. To accomplish this I went into the NIC's Advanced configuration in the driver settings:</p>
+
+<p><a href="http://david-rancourt.com/2012/esxi-vm-need-to-manually-change-mac-address/macbypass/"><img src="http://res.cloudinary.com/david-rancourt-com/image/upload/v1414557778/macbypass_diwdbl.png" alt="" title="macbypass"></a></p>
+
+<p>This allowed me to set the MAC Address for the NIC and forces this address over the one set by ESXi. </p>
+
+<p><span style="color: #ff0000;">NOTE: I have confirmed that this setup works with FlexLM on both Windows Server 2003 and Server 2008. I have not yet tested on Windows Server 2012. <br>
+</span> <br>
+Also make note that: <span style="color: #ff0000;">You can never fire up that NIC ever again on your old server. Even if you plan to re-purpose it unless you are able to change it's MAC Address manually or install a new NIC as firing up that NIC will cause the above setup to fail miserably as you will have tons of trouble connecting to the new server from the old one.</span></p>]]></description><link>http://david-rancourt.com/2012/10/09/esxi-vm-need-to-manually-change-mac-address/</link><guid isPermaLink="false">8e5c7414-988f-4628-b9e6-ea949af95678</guid><category><![CDATA[ESXi]]></category><category><![CDATA[FlexLM]]></category><category><![CDATA[Hardware]]></category><category><![CDATA[License Server]]></category><category><![CDATA[MAC Address]]></category><category><![CDATA[networking]]></category><category><![CDATA[virtualization]]></category><category><![CDATA[vmware]]></category><category><![CDATA[Windows Server]]></category><dc:creator><![CDATA[David Rancourt]]></dc:creator><pubDate>Tue, 09 Oct 2012 22:14:55 GMT</pubDate></item><item><title><![CDATA[Why you should change your default passwords]]></title><description><![CDATA[<p>So you bought that shiny new wireless router or your ISP gave you a new one after signing on to a new contract with them. The very first things many people do is personalize the SSIDs on the device so that they can distinguish their wireless network from their neighbor's wireless but forget to overlook a major security concern.  In the article presented by Sophos, over 4.5 million DSL subsribers who got new modems from the dominant ISP in Brazil got duped because they didn't bother to change the default password on the device, however Sophos goes further in-depth in the situation by detailing the process the attackers used to change the DNS servers to malicious DNS servers which then points to malicious sites even though the site is legitimate. In the article it details that the DNS record for google in Brazil is google.com.br which is the legitimate domain name for the Brazilian version of Google. The hackers changed the DNS records by simply gaining access to all of the modems and the website looks legitimate when visiting it, however it asked users to download a file which the real Google never does. Moral of the story is to change your network device passwords as soon as you set them up because if they get modified without your knowledge you can be on the hook for something much more serious than simply changing your DNS to malicious DNS. Story from Sophos: <a href="http://nakedsecurity.sophos.com/2012/10/01/hacked-routers-brazil-vb2012/?utm_source=feedburner&amp;utm_medium=feed&amp;utm_campaign=Feed%3A+nakedsecurity+%28Naked+Security+-+Sophos%29">source</a></p>]]></description><link>http://david-rancourt.com/2012/10/01/why-you-should-change-your-default-passwords/</link><guid isPermaLink="false">b4649113-ffd7-48c3-b36e-594886dd7f9f</guid><category><![CDATA[DNS]]></category><category><![CDATA[hacking]]></category><category><![CDATA[network security]]></category><category><![CDATA[networking]]></category><category><![CDATA[security]]></category><dc:creator><![CDATA[David Rancourt]]></dc:creator><pubDate>Mon, 01 Oct 2012 17:38:24 GMT</pubDate></item><item><title><![CDATA[Update Dell PowerConnect Firmware via SSH and SFTP]]></title><description><![CDATA[<p>You can use PuTTY to telnet into your Dell PowerConnect 62xx switches to configure them and install new firmware. The CLI is much more powerful than the web interface of the 62xx series switches. This setup is not limited to stacking modules but in my example I am using multiple switches in a stack configuration so it only shows up as 1 switch in my configuration panel.</p>
+
+<p>Download the Dell Switch Firmware from <a href="http://support.dell.com/">http://support.dell.com</a> and enter the service tag of your switch to get the specific firmware for the model.</p>
+
+<p>Download TFTP64server from here: <a href="http://tftpd32.jounin.net/tftpd32_download.html">http://tftpd32.jounin.net/tftpd32_download.html</a></p>
+
+<p>Setup TFTP64server</p>
+
+<p>Create a directory in C:\ root of your computer then make the following directories:  </p>
+
+<pre><code class="language-markup">C:\switches\firmware  
+</code></pre>
+
+<p>Copy the dell firmware files to the firmware directory. <br>
+Commands for Telnet on 62xx switches:</p>
+
+<p>Open Putty in Telnet mode to IP address of your Power Connect switch  </p>
+
+<pre><code class="language-markup">THIS SYSTEM IS PROPERTY OF XXXXX COMPANY XXXXX INFORMATION TECHNOLOGY DEPARTMENT. UNAUTHORIZED USE OF THIS DEVICE IS NOT PERMITTED UNDER THE TERMS OF THE ACCEPTABLE USE POLICY.Press 'y' to continue (within 30 seconds) (y/n) y  
+User:admin  
+Password:*********  
+SW-ENG&gt;en  
+SW-ENG#show version  
+Image Descriptions  
+image1 : default image  
+image2 :
+
+Images currently available on Flash  
+--------------------------------------------------------------------
+unit image1 image2 current-active next-active  
+--------------------------------------------------------------------
+1 3.2.0.7 3.2.1.3 image1 image1  
+2 3.2.0.7 3.2.1.3 image1 image1  
+SW-ENG#copy tftp://&lt;yourTFTPserverIP&gt;/&lt;firmwareName&gt;.stk imageMode...........................................  
+TFTPSet TFTP Server IP............................. &lt;yourTFTPserverIP&gt;TFTP Path...................................... ./  
+TFTP Filename.................................. &lt;firmwareName&gt;.stk  
+Data Type...................................... Code  
+Destination Filename........................... image
+
+Management access will be blocked for the duration of the transferAre you sure you want to start? (y/n) y
+
+TFTP code transfer starting9718796 bytes transferredFile reception completeVerifying file...File contents are valid.
+
+Distributing the code to the members of the stack!File transfer operation completed successfully.
+
+SW-ENG#show version
+
+Image Descriptions  
+image1 : default image  
+image2 :
+
+Images currently available on Flash  
+--------------------------------------------------------------------
+unit image1 image2 current-active next-active  
+--------------------------------------------------------------------
+1 3.2.0.7 3.3.4.1 image1 image1  
+2 3.2.0.7 3.3.4.1 image1 image1
+
+SW-ENG#boot system image2  
+Activating image image2 ..  
+SW-ENG#update bootcode  
+Update bootcode and reset (Y/N)? Y
+
+Issuing boot code update command...  
+</code></pre>
+
+<p>After hitting the 'Y' key on the Update bootcode and reset, the switch should be rebooted into the latest firmware. To confirm you can <code>show version</code></p>]]></description><link>http://david-rancourt.com/2012/09/29/update-dell-powerconnect-firmware-via-ssh-and-sftp/</link><guid isPermaLink="false">aade3b90-d483-4035-8e73-6304850edb0b</guid><category><![CDATA[Dell]]></category><category><![CDATA[networking]]></category><category><![CDATA[PowerConnect]]></category><category><![CDATA[PowerConnect 6248]]></category><category><![CDATA[switches]]></category><category><![CDATA[Switching]]></category><dc:creator><![CDATA[David Rancourt]]></dc:creator><pubDate>Sat, 29 Sep 2012 04:06:58 GMT</pubDate></item><item><title><![CDATA[Renewing SSL Certificates for Exchange]]></title><description><![CDATA[<p>While there are a number of great guides designed to teach a budding Exchange Administrator how to add a brand new SSL certificate to your Exchange system, there seems to be a severe lack of guides to renew said SSL cert. As most of us administrators will spend more time renewing these pesky annual certificates rather than doing the first install I figured I needed to save this little gem so I can easily refer back to it year after year... </p>
+
+<p>Some items of note before we get started. I've only tested this on my configuration, your systems may vary. This was tested on a fairly standard Exchange 2007 SP1 system running on Windows 2003 R2. Also this is not for the self-signed internal Exchange certificate (that process can be found <a href="http://dhcollier.blogspot.com/2009/06/exchange-2007-renewing-self-signed-cert.html">here</a>), this process is for your external facing SSL certificate (which I would assume is a purchased valid certificate from a 3rd Party root CA such as Verisign, Thwate, or even say GoDaddy if you are seeking a discount wildcard SSL cert). </p>
+
+<p>So without further delay away we go, Administrators familiar with say IIS based renewals will likely be tripped up by the very first step, to begin the renewal process in Exchange 2007 you actually don't do a "renewal" per-se, instead you'll want to issue a new certificate request - there are two options here. Both of which are launched from the Exchange Management Shell:</p>
+
+<p><code>Option 1:</code></p>
+
+<p>Issue a SAN (Subject Alternative Names) Certificate - also called a wildcard certificate. These certs are very helpful for exchange environments as it can be used to replace the self-signed Exchange certificate as well as work for the multiple exchange sites such as autodiscover, owa.company.com, mail.company.com, etc.  </p>
+
+<pre><code class="language-markup">New-Exchangecertificate -domainname mail.company.com, company.com, company.local, autodiscover.company.com, autodiscover.company.local, servername01.company.local, servername01 -Friendlyname companyExchCrt -generaterequest:$true -keysize 1024 -path c:\cerReq.csr -privatekeyexportable:$true -subjectname "c=US, s=Texas, l=Dallas, o=Company Name, ou=IT, cn=mail.company.com"  
+</code></pre>
+
+<p><code>Option 2:</code></p>
+
+<p>Issue a Standard single domain certificate - useful for OWA only or environments that want to keep the self-signed exchange certificate - also MUCH cheaper. </p>
+
+<pre><code class="language-markup">New-ExchangeCertificate -GenerateRequest:$true -keysize 1024 -path c:\cerReq.csr -privatekeyexportable:$true -SubjectName "c=US, s=Texas, l=Dallas, o=Company Name, ou=IT, cn=mail.company.com"  
+</code></pre>
+
+<p>Under SubjectName you'll want to fill your values in appropriately.  </p>
+
+<pre><code class="language-markup">c= Your 2 digit Country  
+s= Your State (I tend to spell it out, though some just use the standard 2 character state code) l= Your Locality (City, Region, it's up to you)  
+o= Your company name  
+ou= Your Organizational Unit (common here is IT/IS Department or just omit if not required)  
+cn= the common name of the certificate.  
+</code></pre>
+
+<p>This is important as it is the name the certificate will be issued on - if you are using this Certificate for OWA or even secure SMTP/POP access you will want this to match your MX DNS records (such as mail.company.com or owa.company.com - not as critical with a SAN cert).</p>
+
+<p>Now the fun begins, you go to your certificate provider and go though the renewal process, when prompted attach or copy the text from your CSR file (<code>c:\cerReq.csr</code> if you followed the example above) and wait for your new certificate to be emailed back to you (or retrieved from the company's website).</p>
+
+<p>Save this new certificate in a file called exchcert.cer on the root of your c:\</p>
+
+<p>Note: if you get it from a web page you may need to copy everything from  </p>
+
+<pre><code class="language-markup">-----BEGIN CERTIFICATE-----
+          to   
+-----END CERTIFICATE-----
+</code></pre>
+
+<p>into a text file (using notepad) and save it as <code>c:\exchcert.cer</code> </p>
+
+<p>Open the Exchange Management Shell Issue the following command  </p>
+
+<pre><code class="language-markup">cGet-ExchangeCertificate | fl | out-file -filePath c:\CurrentCerts.txt  
+</code></pre>
+
+<p>This will export all the certificates on the server to a text file, when opened it looks like this:  </p>
+
+<pre><code class="language-markup">AccessRules : {System.Security.AccessControl.CryptoKeyAccessRule, System.Security.AccessControl.CryptoKeyAccessRule, System.Security.AccessControl.CryptoKeyAccessRule}  
+CertificateDomains : {mail.company.com}  
+HasPrivateKey : True  
+IsSelfSigned : False  
+Issuer : OU=[www.verisign.com/CPS Incorp.by](http://www.verisign.com/CPS%20Incorp.by) Ref. LIABILITY LTD.(c)97 VeriSign, OU=VeriSign International Server CA - Class 3,  
+OU="VeriSign, Inc.", O=VeriSign Trust Network  
+NotAfter : 4/18/2009 6:59:59 PM  
+NotBefore : 3/26/2008 7:00:00 PM  
+PublicKeySize : 1024  
+RootCAType : ThirdParty  
+SerialNumber : 29BBFFD5AAAB541AB9BB2A73139AG335  
+Services : IMAP, POP, IIS, SMTP  
+Status : Valid  
+Subject : CN=mail.company.com, OU=Terms of use at verisign.com/rpa (c)05, OU=IT, o=company name, L=Dallas, S=Texas, C=US  
+Thumbprint : C21DE04E3123210AD28E430742C21D0194F46421  
+</code></pre>
+
+<p>Two things to note here, </p>
+
+<p><code>Services:</code> - these two are important to the next step - depending on what you use the current certificate for you will want to make sure the renewal cert does the same thing (in the example above this certificate does IMAP, POP, IIS, and SMTP) </p>
+
+<p><code>Thumbprint:</code> - this is used to delete the old certificate which is our next step. </p>
+
+<pre><code class="language-markup">Remove-ExchangeCertificate -thumbprint [old certificate thumbprint]  
+</code></pre>
+
+<p>
+from the example above:  </p>
+
+<pre><code class="language-markup ">Remove-ExchangeCertificate -thumbprint C21DE04E3123210AD28E430742C21D0194F46421  
+</code></pre>
+
+<p>You will get a confirmation to remove the old certificate, you'll want to type Y to remove it. Now you are almost done, we just need to add the newly renewed certificate back into the system. </p>
+
+<pre><code class="language-markup">Import-ExchangeCertificate -path c:\exchcert.cer | Enable-ExchangeCertificate -Services [your services from above]  
+</code></pre>
+
+<p>
+Using our example you will want to do the following to get the certificate working on all services (except Unified Messaging - UM). </p>
+
+<pre><code class="language-markup">Import-ExchangeCertificate -path c:\exchcert.cer | Enable-ExchangeCertificate -Services IMAP, POP, IIS, SMTP  
+</code></pre>
+
+<p>Now just to confirm all is working as expected, you will want to issue the following command  </p>
+
+<pre><code class="language-markup">Get-ExchangeCertificate  
+</code></pre>
+
+<p>This will display something similar to this:  </p>
+
+<pre><code class="language-markup">Thumbprint Services Subject ---------- -------- ------- C32DE24E1214210AD28E030742C21D0194F060D1 IP.WS CN=mail.company.com  
+</code></pre>]]></description><link>http://david-rancourt.com/2012/09/28/renewing-ssl-certificates-for-exchange/</link><guid isPermaLink="false">51b23147-d755-400b-96ee-826ce48b2be2</guid><category><![CDATA[exchange]]></category><category><![CDATA[Exchange 2007]]></category><category><![CDATA[Exchange Certificates]]></category><category><![CDATA[security]]></category><category><![CDATA[SSL]]></category><category><![CDATA[SSL Certificates]]></category><category><![CDATA[SSL Renewal]]></category><dc:creator><![CDATA[David Rancourt]]></dc:creator><pubDate>Sat, 29 Sep 2012 03:45:13 GMT</pubDate></item><item><title><![CDATA[Dell PowerConnect Switches Packet Loss Issues]]></title><description><![CDATA[<p>  I upgraded many Dell 6248 switches to the latest and greatest firmware over the weekend.  I have been experiencing more packet loss than I would ever want to see on an internal LAN.  Connecting from the servers on the same switch would yield a periodic lost packet for no apparent reason.  There were some clues on the switch with logged “spanning tree topology changes” in the log file.  During this log event, I would drop packets not only on the local switch, but other connecting switches as well.  All of these switches are configured with Rapid STP, LAG groups between them, and two VLANs. Reading up on the dell site, I saw some good advice entailing turning on “Port Fast” on every port that isn’t an edge link between switches, namely ports connected to switches and servers.  This advice appears to be valid.  With the latest firmware I could go to Global STP settings and simply enable Port Fast.  It was smart enough to not turn it on for the LAG groups and switch interconnects with multi-vlans on them.  So far so good…over the past few hours I haven’t had any dropped packets. <a href="http://david-rancourt.com/2012/dell-powerconnect-switches-packet-loss-issues/dellswitchpktlossdemo/"><img src="http://res.cloudinary.com/david-rancourt-com/image/upload/v1414557779/dellswitchpktlossdemo_efln5m.png" alt="" title="dellswitchpktlossdemo"></a></p>]]></description><link>http://david-rancourt.com/2012/09/28/dell-powerconnect-switches-packet-loss-issues/</link><guid isPermaLink="false">24049aa1-eec6-4661-863c-7819bc81bbbf</guid><category><![CDATA[Dell 6248]]></category><category><![CDATA[Dell PowerConnect]]></category><category><![CDATA[LAG Groups]]></category><category><![CDATA[networking]]></category><category><![CDATA[Port Fast]]></category><category><![CDATA[Rapid STP]]></category><category><![CDATA[Switching]]></category><category><![CDATA[VLAN]]></category><dc:creator><![CDATA[David Rancourt]]></dc:creator><pubDate>Fri, 28 Sep 2012 15:51:08 GMT</pubDate></item><item><title><![CDATA[Guest Services on Sonicwall with 3rd Party AP's]]></title><description><![CDATA[<p>  Problem:  We are using an old D-Link hotspot to allow guest access in our building.  This D-Link feed a VLan that is distributed to 7 D-Link access points.  These APs support multiple SSIDs on different VLAN making them very convenient for distributing multiple wireless networks around the facility.  The new Sonicwall has Guest Services, but how can we make it all work together?  It seems like Sonicwall wants us to use their own proprietary (and expensive) access points. In our server room we have a port dedicated to feeding the VLAN through the building.  I connected that port to X5 on our Sonicwall TZ210.  Now the configuration on the SW. First, let’s add a new Zone and call it Guest.  For initial testing I am leaving the security settings turned off. <img src="http://res.cloudinary.com/david-rancourt-com/image/upload/v1414557780/sw3ptyguestsetup02_edxecs.png" alt="" title="sw3ptyguestsetup02"> <img src="http://res.cloudinary.com/david-rancourt-com/image/upload/v1414557781/sw3ptyguestsetup01_qxgvdr.png" alt="" title="sw3ptyguestsetup01"> Now let’s configure port X5 to be in our Guest zone with a static IP address of 192.168.1.1 on a standard Class C subnet.  Do this from Interfaces.  I have enabled management and ping plus user logins on this interface.  After testing I will disable the management except for Ping.  Make sure you enable login so your users can actually log in! <a href="http://david-rancourt.com/2012/guest-services-on-sonicwall-with-3rd-party-aps/sw3ptyguestsetup03/"><img src="http://res.cloudinary.com/david-rancourt-com/image/upload/v1414557780/sw3ptyguestsetup03_ptstgp.png" alt="" title="sw3ptyguestsetup03"></a> Verify a firewall rule exists for traffic from the GUEST to WAN zones.  With my firmware, this was automatically created.  I enabled some bandwidth limiting on it as well. <a href="http://david-rancourt.com/2012/guest-services-on-sonicwall-with-3rd-party-aps/sw3ptyguestsetup04/"><img src="http://res.cloudinary.com/david-rancourt-com/image/upload/v1414557780/sw3ptyguestsetup04_odxsdc.png" alt="" title="sw3ptyguestsetup04"></a> Now turn on the DHCP server for this interface with the appropriate settings.  Note that it is configured for interface X5.  Make sure the DHCP server is actually enabled in the top check box.  I forgot this part the first time around. <a href="http://david-rancourt.com/2012/guest-services-on-sonicwall-with-3rd-party-aps/sw3ptyguestsetup05/"><img src="http://res.cloudinary.com/david-rancourt-com/image/upload/v1414557779/sw3ptyguestsetup05_ecnc61.png" alt="" title="sw3ptyguestsetup05"></a> Anyone that connects to the VLAN or physical network on X5 should now receive a DHCP address in your range and be greeted in a web browser with the Sonicwall Login page. Adding users is very easy!  Just head down to Users|Guest Accounts and you can have them automatically generated for you or create your own.  You can also specify how long they are active for.  You can also click on Guest Status to see your logged in guests!</p>]]></description><link>http://david-rancourt.com/2012/09/28/guest-services-on-sonicwall-with-3rd-party-aps/</link><guid isPermaLink="false">b6aa198f-484b-42fc-9d9b-c4649745cf6e</guid><category><![CDATA[DLink AP's]]></category><category><![CDATA[firewall]]></category><category><![CDATA[Guest Network]]></category><category><![CDATA[Guest Services]]></category><category><![CDATA[networking]]></category><category><![CDATA[sonicwall]]></category><category><![CDATA[VLAN]]></category><dc:creator><![CDATA[David Rancourt]]></dc:creator><pubDate>Fri, 28 Sep 2012 15:40:57 GMT</pubDate></item><item><title><![CDATA[P2V Conversion Failure Fixed]]></title><description><![CDATA[<p>  We’ve been trying to convert a few Windows 2000 SP4 server to a VMWare machine for a while and running into the same issue.  I would always get a MODE<em>EXCEPTION</em>NOT_HANDLED BSOD right after the login screen would appear.  I tried the normal fixes listed on the VMWare website including the right SP4 rollup 1 v2 and checking the versions of scsiport.sys.  Fortunately, I stumbled across this wonderful article: <a href="http://www.networkworld.com/news/2005/041105-windows-crash.html?page=1">http://www.networkworld.com/news/2005/041105-windows-crash.html?page=1</a> I set the virtual machine to a kernel mode dump and let it BSOD as recommended by the article.  I then copied to memory.dmp file to my Windows 7 workstation where I had installed the debugging tools referenced in the article.  I quickly identified usbsp.sys as the offending driver.  I renamed it on the virtual and rebooted.  Result?  Perfect!  I will definitely make sure I use this in the future to get a handle on blue screens when they pop up. Here is the relevant data from the process with the info highlighted in red.   How cool is that?</p>
+
+<table border="1" cellpadding="2" cellspacing="0" width="400"><tbody><tr><td valign="top" width="398">EXCEPTION_PARAMETER1:  00000000EXCEPTION_PARAMETER2:  00000000 ERROR_CODE: (NTSTATUS) 0 - STATUS_WAIT_0 BUGCHECK_STR:  0x1E_0 DEFAULT_BUCKET_ID:  DRIVER_FAULT PROCESS_NAME:  System LAST_CONTROL_TRANSFER:  from f2695af5 to 8042be0b STACK_TEXT: f245fc78 f2695af5 0000001e 00000001 804b1cd8 nt!KeBugCheck+0xf WARNING: Stack unwind information not available. Following frames may be wrong. f245fc90 804b1d5e 828696f0 82614000 f219fd08 usbsp+0xaf5 f245fd58 804b1f9f 0000008c 82614000 f219fd08 nt!IopLoadDriver+0x672 f245fd78 80417b47 f219fd08 00000000 00000000 nt!IopLoadUnloadDriver+0x3f f245fda8 80457838 f219fd08 00000000 00000000 nt!ExpWorkerThread+0xaf f245fddc 8046c8e6 80417a98 00000001 00000000 nt!PspSystemThreadStartup+0x54 00000000 00000000 00000000 00000000 00000000 nt!KiThreadStartup+0x16 STACK_COMMAND:  kb FOLLOWUP_IP: usbsp+af5 f2695af5 8d45f4          lea     eax,[ebp-0Ch] SYMBOL_STACK_INDEX:  1 SYMBOL_NAME:  usbsp+af5 FOLLOWUP_NAME:  MachineOwner <span style="color: #ff0000;">MODULE_NAME: usbsp</span><span style="color: #ff0000;">IMAGE_NAME:  usbsp.sys</span> DEBUG_FLR_IMAGE_TIMESTAMP:  3cc859dd FAILURE_BUCKET_ID:  0x1E_0_usbsp+af5 BUCKET_ID:  0x1E_0_usbsp+af5 Followup: MachineOwner</td></tr></tbody></table>]]></description><link>http://david-rancourt.com/2012/09/28/p2v-conversion-failure-fixed/</link><guid isPermaLink="false">bf97f795-cdc6-40f1-bd8b-b41d354820a2</guid><category><![CDATA[P2V convert]]></category><category><![CDATA[virtualization]]></category><category><![CDATA[vmware]]></category><dc:creator><![CDATA[David Rancourt]]></dc:creator><pubDate>Fri, 28 Sep 2012 15:25:40 GMT</pubDate></item></channel></rss>

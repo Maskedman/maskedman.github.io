@@ -5,7 +5,7 @@
     <meta charset="utf-8" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
 
-    <title>github-pages - David Rancourt</title>
+    <title>Dell Service Tag - David Rancourt</title>
     <meta name="description" content="" />
 
     <meta name="HandheldFriendly" content="True" />
@@ -18,7 +18,7 @@
 
     <meta name="generator" content="Ghost 0.5" />
 <link rel="alternate" type="application/rss+xml" title="David Rancourt" href="../../rss/index.html">
-<link rel="canonical" href="http://david-rancourt.com/tag/github-pages/" />
+<link rel="canonical" href="http://david-rancourt.com/tag/dell-service-tag/" />
 
     <link href="http://netdna.bootstrapcdn.com/font-awesome/4.0.3/css/font-awesome.css" rel="stylesheet">
 
@@ -36,7 +36,7 @@
     </script>
 </head>
 
-<body class="tag-template tag-github-pages">
+<body class="tag-template tag-dell-service-tag">
 
     <div id="sidebar" >
         <div id="sidebar-content" class="inner">
@@ -80,30 +80,67 @@
         
 
 <header class="tag-archive-header">
-    <h4><i class="fa fa-tag"></i><span class="tag-archive-header-name">github-pages</span></h4>
+    <h4><i class="fa fa-tag"></i><span class="tag-archive-header-name">Dell Service Tag</span></h4>
 </header>
 
 
-<article class="post tag-ghost-tag tag-github-pages tag-buster featured">
+<article class="post tag-dell tag-dell-service-tag tag-express-service-code tag-hardware tag-remote-access tag-remote-cli tag-service-tag tag-windows-server">
     <header class="post-header">
         <div class="post-meta">
             <span class="post-time">
                 <i class='fa fa-calendar'></i>
-                <time datetime="2014-10-22" class="timeago">4 days ago</time>
-                <time datetime="2014-10-22" class="fulldate">October 22nd, 2014</time>
+                <time datetime="2012-10-09" class="timeago">2 years ago</time>
+                <time datetime="2012-10-09" class="fulldate">October 9th, 2012</time>
             </span>
-            <br><i class='fa fa-tag'></i> <a href="../ghost-tag/index.html">ghost</a> · <a href="index.html">github-pages</a> · <a href="../buster/index.html">buster</a>
+            <br><i class='fa fa-tag'></i> <a href="../dell/index.html">Dell</a> · <a href="index.html">Dell Service Tag</a> · <a href="../express-service-code/index.html">Express Service Code</a> · <a href="../hardware/index.html">Hardware</a> · <a href="../remote-access/index.html">Remote Access</a> · <a href="../remote-cli/index.html">Remote CLI</a> · <a href="../service-tag/index.html">Service Tag</a> · <a href="../windows-server/index.html">Windows Server</a>
         </div>
-        <h2 class="post-title"><a href="../../2014/10/22/moving-my-blog-to-github-pages/index.html">Moving my blog to GitHub pages</a></h2>
+        <h2 class="post-title"><a href="../../2012/10/09/get-dell-service-tag-express-service-code-from-linux-windows/index.html">Get Dell Service Tag &amp; Express Service Code From Linux &amp; Windows</a></h2>
 
     </header>
     <section class="post-content">
-        <p>I have moved my blog to GitHub pages after taking down my last vps host as it was starting to cost too much money for just running a wordpress blog. All of my posts that were previously hosted on my old server will eventually updated and moved into this blogroll. I look forward to spending less time on maintenace of the servers outside of my office hours and just focus on my personal things when I am away from the office. The technical nature of the blog shouldn't change too much as I have moved on to much more interesting things in the last few months since my last post.</p>
+        <p>First off I wanted to mention that I stole this article from this <a href="http://www.thegeekstuff.com/2008/10/view-dell-service-tag-and-express-service-code-from-linux-and-windows/#more-243">guy</a> as it is totally worth getting this information out there to the masses who support Dell hardware and have to reach out to Dell Support every now and then. This is an awesome trick for those times when you need to get in touch with Dell's technical support or to get drivers and other documentation from <a href="http://support.dell.com">Dell Support</a>. I mainly use the Windows piece but will add the Linux after the jump.</p>
 
-<p>Recently my wife and I got a new dog, Cooper. He is a mutt with mostly Wheaton Terrier and Wiredhaired Pointing Griffon. We are enjoying our time with him tremendously now.</p>
+<h3 id="1getdellservicetagonremotewindowssystemviardpvncetc">1. Get DELL Service Tag on remote Windows System via RDP/VNC etc.</h3>
+
+<pre><code class="language-markup">C:\wmic bios get serialnumber SerialNumber ABCDEF1  
+</code></pre>
+
+<p>The following command can give you more information such as the make, model, and service tag. C:\wmic csproduct get vendor,name,identifyingnumber IdentifyingNumber Name Vendor ABCDEF1 PowerEdge 2950 Dell Inc.</p>
+
+<h3 id="2getdellservicetagonremotewindowssystem">2. Get DELL Service Tag on remote Windows System</h3>
+
+<p>If VNC or Remote Desktop isn't available, you can execute the following command from your local machine to get the service tag of the remote machine.</p>
+
+<pre><code class="language-markup ">C:\wmic /user:administrator /note:remote-host bios get serialnumber  
+SerialNumber ABCDEF1  
+</code></pre>
+
+<p>[Note: replace remote-host with the machine name of your remote host.]</p>
+
+<h3 id="3getdellservicetagonremotelinuxsystem">3. Get DELL Service Tag on remote Linux System</h3>
+
+<p>Login to your Linux system using SSH. Use dmidecode on Linux to get service tag as shown.  </p>
+
+<pre><code class="language-markup">[remote-host]# dmidecode -s system-serial-number
+ABCDEF1  
+</code></pre>
+
+<h3 id="4getdellexpressservicecodefromyourservicetag">4. Get DELL Express Service Code from your Service Tag</h3>
+
+<p>Service Tag is a base-36 integer. Once you have your service tag, you can calculate your Express Service Code yourself. Express Service Code is a base-10 integer. Dell mainly uses the Service Code for support based in-call routing. When you call Dell support, it may ask you for your express service code which you can easily enter in your telephone in the dial pad, as it is a bunch of numbers. Use the following tools to find express service code from service tag and vice-versa.</p>
+
+<ol>
+<li><a href="http://www.creativyst.com/Doc/Articles/HT/Dell/DellPop.htm">Creativyst Dell-Number Widget</a>  </li>
+<li><a href="http://www.powerdog.com/dellconv.cgi">Dell PC service tag/code converter from PowerDog industries</a></li>
+</ol>
+
+<p>I have also tried this method on some of my other vendor equipment so far I have seen it work on the following: 1. IBM <br />
+2. HP Blades <br />
+3. HP Servers <br />
+4. Supermicro Servers</p>
     </section>
     <footer class="post-indexfooter">
-        <i class="fa fa-comments"></i> <a href="../../2014/10/22/moving-my-blog-to-github-pages/index.html#disqus_thread">Comments</a>
+        <i class="fa fa-comments"></i> <a href="../../2012/10/09/get-dell-service-tag-express-service-code-from-linux-windows/index.html#disqus_thread">Comments</a>
     </footer>
 </article>
 

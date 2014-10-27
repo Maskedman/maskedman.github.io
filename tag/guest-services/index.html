@@ -5,7 +5,7 @@
     <meta charset="utf-8" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
 
-    <title>github-pages - David Rancourt</title>
+    <title>Guest Services - David Rancourt</title>
     <meta name="description" content="" />
 
     <meta name="HandheldFriendly" content="True" />
@@ -18,7 +18,7 @@
 
     <meta name="generator" content="Ghost 0.5" />
 <link rel="alternate" type="application/rss+xml" title="David Rancourt" href="../../rss/index.html">
-<link rel="canonical" href="http://david-rancourt.com/tag/github-pages/" />
+<link rel="canonical" href="http://david-rancourt.com/tag/guest-services/" />
 
     <link href="http://netdna.bootstrapcdn.com/font-awesome/4.0.3/css/font-awesome.css" rel="stylesheet">
 
@@ -36,7 +36,7 @@
     </script>
 </head>
 
-<body class="tag-template tag-github-pages">
+<body class="tag-template tag-guest-services">
 
     <div id="sidebar" >
         <div id="sidebar-content" class="inner">
@@ -80,30 +80,28 @@
         
 
 <header class="tag-archive-header">
-    <h4><i class="fa fa-tag"></i><span class="tag-archive-header-name">github-pages</span></h4>
+    <h4><i class="fa fa-tag"></i><span class="tag-archive-header-name">Guest Services</span></h4>
 </header>
 
 
-<article class="post tag-ghost-tag tag-github-pages tag-buster featured">
+<article class="post tag-dlink-aps tag-firewall tag-guest-network tag-guest-services tag-networking tag-sonicwall tag-vlan">
     <header class="post-header">
         <div class="post-meta">
             <span class="post-time">
                 <i class='fa fa-calendar'></i>
-                <time datetime="2014-10-22" class="timeago">4 days ago</time>
-                <time datetime="2014-10-22" class="fulldate">October 22nd, 2014</time>
+                <time datetime="2012-09-28" class="timeago">2 years ago</time>
+                <time datetime="2012-09-28" class="fulldate">September 28th, 2012</time>
             </span>
-            <br><i class='fa fa-tag'></i> <a href="../ghost-tag/index.html">ghost</a> · <a href="index.html">github-pages</a> · <a href="../buster/index.html">buster</a>
+            <br><i class='fa fa-tag'></i> <a href="../dlink-aps/index.html">DLink AP&#39;s</a> · <a href="../firewall/index.html">firewall</a> · <a href="../guest-network/index.html">Guest Network</a> · <a href="index.html">Guest Services</a> · <a href="../networking/index.html">networking</a> · <a href="../sonicwall/index.html">sonicwall</a> · <a href="../vlan/index.html">VLAN</a>
         </div>
-        <h2 class="post-title"><a href="../../2014/10/22/moving-my-blog-to-github-pages/index.html">Moving my blog to GitHub pages</a></h2>
+        <h2 class="post-title"><a href="../../2012/09/28/guest-services-on-sonicwall-with-3rd-party-aps/index.html">Guest Services on Sonicwall with 3rd Party AP&#x27;s</a></h2>
 
     </header>
     <section class="post-content">
-        <p>I have moved my blog to GitHub pages after taking down my last vps host as it was starting to cost too much money for just running a wordpress blog. All of my posts that were previously hosted on my old server will eventually updated and moved into this blogroll. I look forward to spending less time on maintenace of the servers outside of my office hours and just focus on my personal things when I am away from the office. The technical nature of the blog shouldn't change too much as I have moved on to much more interesting things in the last few months since my last post.</p>
-
-<p>Recently my wife and I got a new dog, Cooper. He is a mutt with mostly Wheaton Terrier and Wiredhaired Pointing Griffon. We are enjoying our time with him tremendously now.</p>
+        <p>  Problem:  We are using an old D-Link hotspot to allow guest access in our building.  This D-Link feed a VLan that is distributed to 7 D-Link access points.  These APs support multiple SSIDs on different VLAN making them very convenient for distributing multiple wireless networks around the facility.  The new Sonicwall has Guest Services, but how can we make it all work together?  It seems like Sonicwall wants us to use their own proprietary (and expensive) access points. In our server room we have a port dedicated to feeding the VLAN through the building.  I connected that port to X5 on our Sonicwall TZ210.  Now the configuration on the SW. First, let’s add a new Zone and call it Guest.  For initial testing I am leaving the security settings turned off. <img src="http://res.cloudinary.com/david-rancourt-com/image/upload/v1414557780/sw3ptyguestsetup02_edxecs.png" alt="" title="sw3ptyguestsetup02" /> <img src="http://res.cloudinary.com/david-rancourt-com/image/upload/v1414557781/sw3ptyguestsetup01_qxgvdr.png" alt="" title="sw3ptyguestsetup01" /> Now let’s configure port X5 to be in our Guest zone with a static IP address of 192.168.1.1 on a standard Class C subnet.  Do this from Interfaces.  I have enabled management and ping plus user logins on this interface.  After testing I will disable the management except for Ping.  Make sure you enable login so your users can actually log in! <a href="http://david-rancourt.com/2012/guest-services-on-sonicwall-with-3rd-party-aps/sw3ptyguestsetup03/"><img src="http://res.cloudinary.com/david-rancourt-com/image/upload/v1414557780/sw3ptyguestsetup03_ptstgp.png" alt="" title="sw3ptyguestsetup03" /></a> Verify a firewall rule exists for traffic from the GUEST to WAN zones.  With my firmware, this was automatically created.  I enabled some bandwidth limiting on it as well. <a href="http://david-rancourt.com/2012/guest-services-on-sonicwall-with-3rd-party-aps/sw3ptyguestsetup04/"><img src="http://res.cloudinary.com/david-rancourt-com/image/upload/v1414557780/sw3ptyguestsetup04_odxsdc.png" alt="" title="sw3ptyguestsetup04" /></a> Now turn on the DHCP server for this interface with the appropriate settings.  Note that it is configured for interface X5.  Make sure the DHCP server is actually enabled in the top check box.  I forgot this part the first time around. <a href="http://david-rancourt.com/2012/guest-services-on-sonicwall-with-3rd-party-aps/sw3ptyguestsetup05/"><img src="http://res.cloudinary.com/david-rancourt-com/image/upload/v1414557779/sw3ptyguestsetup05_ecnc61.png" alt="" title="sw3ptyguestsetup05" /></a> Anyone that connects to the VLAN or physical network on X5 should now receive a DHCP address in your range and be greeted in a web browser with the Sonicwall Login page. Adding users is very easy!  Just head down to Users|Guest Accounts and you can have them automatically generated for you or create your own.  You can also specify how long they are active for.  You can also click on Guest Status to see your logged in guests!</p>
     </section>
     <footer class="post-indexfooter">
-        <i class="fa fa-comments"></i> <a href="../../2014/10/22/moving-my-blog-to-github-pages/index.html#disqus_thread">Comments</a>
+        <i class="fa fa-comments"></i> <a href="../../2012/09/28/guest-services-on-sonicwall-with-3rd-party-aps/index.html#disqus_thread">Comments</a>
     </footer>
 </article>
 

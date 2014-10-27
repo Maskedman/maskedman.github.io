@@ -5,7 +5,7 @@
     <meta charset="utf-8" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
 
-    <title>github-pages - David Rancourt</title>
+    <title>License Server - David Rancourt</title>
     <meta name="description" content="" />
 
     <meta name="HandheldFriendly" content="True" />
@@ -18,7 +18,7 @@
 
     <meta name="generator" content="Ghost 0.5" />
 <link rel="alternate" type="application/rss+xml" title="David Rancourt" href="../../rss/index.html">
-<link rel="canonical" href="http://david-rancourt.com/tag/github-pages/" />
+<link rel="canonical" href="http://david-rancourt.com/tag/license-server/" />
 
     <link href="http://netdna.bootstrapcdn.com/font-awesome/4.0.3/css/font-awesome.css" rel="stylesheet">
 
@@ -36,7 +36,7 @@
     </script>
 </head>
 
-<body class="tag-template tag-github-pages">
+<body class="tag-template tag-license-server">
 
     <div id="sidebar" >
         <div id="sidebar-content" class="inner">
@@ -80,30 +80,38 @@
         
 
 <header class="tag-archive-header">
-    <h4><i class="fa fa-tag"></i><span class="tag-archive-header-name">github-pages</span></h4>
+    <h4><i class="fa fa-tag"></i><span class="tag-archive-header-name">License Server</span></h4>
 </header>
 
 
-<article class="post tag-ghost-tag tag-github-pages tag-buster featured">
+<article class="post tag-esxi tag-flexlm tag-hardware tag-license-server tag-mac-address tag-networking tag-virtualization tag-vmware tag-windows-server">
     <header class="post-header">
         <div class="post-meta">
             <span class="post-time">
                 <i class='fa fa-calendar'></i>
-                <time datetime="2014-10-22" class="timeago">4 days ago</time>
-                <time datetime="2014-10-22" class="fulldate">October 22nd, 2014</time>
+                <time datetime="2012-10-09" class="timeago">2 years ago</time>
+                <time datetime="2012-10-09" class="fulldate">October 9th, 2012</time>
             </span>
-            <br><i class='fa fa-tag'></i> <a href="../ghost-tag/index.html">ghost</a> · <a href="index.html">github-pages</a> · <a href="../buster/index.html">buster</a>
+            <br><i class='fa fa-tag'></i> <a href="../esxi/index.html">ESXi</a> · <a href="../flexlm/index.html">FlexLM</a> · <a href="../hardware/index.html">Hardware</a> · <a href="index.html">License Server</a> · <a href="../mac-address/index.html">MAC Address</a> · <a href="../networking/index.html">networking</a> · <a href="../virtualization/index.html">virtualization</a> · <a href="../vmware/index.html">vmware</a> · <a href="../windows-server/index.html">Windows Server</a>
         </div>
-        <h2 class="post-title"><a href="../../2014/10/22/moving-my-blog-to-github-pages/index.html">Moving my blog to GitHub pages</a></h2>
+        <h2 class="post-title"><a href="../../2012/10/09/esxi-vm-need-to-manually-change-mac-address/index.html">ESXi VM need to manually change MAC Address</a></h2>
 
     </header>
     <section class="post-content">
-        <p>I have moved my blog to GitHub pages after taking down my last vps host as it was starting to cost too much money for just running a wordpress blog. All of my posts that were previously hosted on my old server will eventually updated and moved into this blogroll. I look forward to spending less time on maintenace of the servers outside of my office hours and just focus on my personal things when I am away from the office. The technical nature of the blog shouldn't change too much as I have moved on to much more interesting things in the last few months since my last post.</p>
+        <p>Today, I had to deal with a FlexLM Licensing server issue which resulted from a VM which had it's NIC configured for the SAN's VLAN rather than for the production VLAN which caused the server to have some considerable amounts of downtime. I will talk about the setting up my SAN on a different VLAN from the rest of my production network in another post. In VMWare ESXi vSphere console for the VM host server which my guest VM was hosted on I attempted to change the MAC address of a specific NIC so the license server would work correctly. Well I was able to force this in ESXi in a previous version of ESXi 3.5 which allowed me to use any MAC address that I wanted to use. Well in ESXi 4.1 you can't do that anymore as it forces you to only modify the last 6 digits of the MAC address rather than the whole set. My work around evolved below:</p>
 
-<p>Recently my wife and I got a new dog, Cooper. He is a mutt with mostly Wheaton Terrier and Wiredhaired Pointing Griffon. We are enjoying our time with him tremendously now.</p>
+<p><a href="http://david-rancourt.com/2012/esxi-vm-need-to-manually-change-mac-address/esximacdef/"><img src="http://res.cloudinary.com/david-rancourt-com/image/upload/v1414557778/esximacdef_tpckpx.png" alt="" title="esximacdef" /></a>As you notice in the above figure, the MAC Address is a random address given by my ESXi server. I need to bypass this and force a MAC Address from a NIC that I am not using anymore on an old server that I needed to move my FlexLM Licensing from. To accomplish this I went into the NIC's Advanced configuration in the driver settings:</p>
+
+<p><a href="http://david-rancourt.com/2012/esxi-vm-need-to-manually-change-mac-address/macbypass/"><img src="http://res.cloudinary.com/david-rancourt-com/image/upload/v1414557778/macbypass_diwdbl.png" alt="" title="macbypass" /></a></p>
+
+<p>This allowed me to set the MAC Address for the NIC and forces this address over the one set by ESXi. </p>
+
+<p><span style="color: #ff0000;">NOTE: I have confirmed that this setup works with FlexLM on both Windows Server 2003 and Server 2008. I have not yet tested on Windows Server 2012. <br />
+</span> <br />
+Also make note that: <span style="color: #ff0000;">You can never fire up that NIC ever again on your old server. Even if you plan to re-purpose it unless you are able to change it's MAC Address manually or install a new NIC as firing up that NIC will cause the above setup to fail miserably as you will have tons of trouble connecting to the new server from the old one.</span></p>
     </section>
     <footer class="post-indexfooter">
-        <i class="fa fa-comments"></i> <a href="../../2014/10/22/moving-my-blog-to-github-pages/index.html#disqus_thread">Comments</a>
+        <i class="fa fa-comments"></i> <a href="../../2012/10/09/esxi-vm-need-to-manually-change-mac-address/index.html#disqus_thread">Comments</a>
     </footer>
 </article>
 

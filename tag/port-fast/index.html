@@ -5,7 +5,7 @@
     <meta charset="utf-8" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
 
-    <title>github-pages - David Rancourt</title>
+    <title>Port Fast - David Rancourt</title>
     <meta name="description" content="" />
 
     <meta name="HandheldFriendly" content="True" />
@@ -18,7 +18,7 @@
 
     <meta name="generator" content="Ghost 0.5" />
 <link rel="alternate" type="application/rss+xml" title="David Rancourt" href="../../rss/index.html">
-<link rel="canonical" href="http://david-rancourt.com/tag/github-pages/" />
+<link rel="canonical" href="http://david-rancourt.com/tag/port-fast/" />
 
     <link href="http://netdna.bootstrapcdn.com/font-awesome/4.0.3/css/font-awesome.css" rel="stylesheet">
 
@@ -36,7 +36,7 @@
     </script>
 </head>
 
-<body class="tag-template tag-github-pages">
+<body class="tag-template tag-port-fast">
 
     <div id="sidebar" >
         <div id="sidebar-content" class="inner">
@@ -80,30 +80,28 @@
         
 
 <header class="tag-archive-header">
-    <h4><i class="fa fa-tag"></i><span class="tag-archive-header-name">github-pages</span></h4>
+    <h4><i class="fa fa-tag"></i><span class="tag-archive-header-name">Port Fast</span></h4>
 </header>
 
 
-<article class="post tag-ghost-tag tag-github-pages tag-buster featured">
+<article class="post tag-dell-6248 tag-dell-powerconnect tag-lag-groups tag-networking tag-port-fast tag-rapid-stp tag-switching tag-vlan">
     <header class="post-header">
         <div class="post-meta">
             <span class="post-time">
                 <i class='fa fa-calendar'></i>
-                <time datetime="2014-10-22" class="timeago">4 days ago</time>
-                <time datetime="2014-10-22" class="fulldate">October 22nd, 2014</time>
+                <time datetime="2012-09-28" class="timeago">2 years ago</time>
+                <time datetime="2012-09-28" class="fulldate">September 28th, 2012</time>
             </span>
-            <br><i class='fa fa-tag'></i> <a href="../ghost-tag/index.html">ghost</a> · <a href="index.html">github-pages</a> · <a href="../buster/index.html">buster</a>
+            <br><i class='fa fa-tag'></i> <a href="../dell-6248/index.html">Dell 6248</a> · <a href="../dell-powerconnect/index.html">Dell PowerConnect</a> · <a href="../lag-groups/index.html">LAG Groups</a> · <a href="../networking/index.html">networking</a> · <a href="index.html">Port Fast</a> · <a href="../rapid-stp/index.html">Rapid STP</a> · <a href="../switching/index.html">Switching</a> · <a href="../vlan/index.html">VLAN</a>
         </div>
-        <h2 class="post-title"><a href="../../2014/10/22/moving-my-blog-to-github-pages/index.html">Moving my blog to GitHub pages</a></h2>
+        <h2 class="post-title"><a href="../../2012/09/28/dell-powerconnect-switches-packet-loss-issues/index.html">Dell PowerConnect Switches Packet Loss Issues</a></h2>
 
     </header>
     <section class="post-content">
-        <p>I have moved my blog to GitHub pages after taking down my last vps host as it was starting to cost too much money for just running a wordpress blog. All of my posts that were previously hosted on my old server will eventually updated and moved into this blogroll. I look forward to spending less time on maintenace of the servers outside of my office hours and just focus on my personal things when I am away from the office. The technical nature of the blog shouldn't change too much as I have moved on to much more interesting things in the last few months since my last post.</p>
-
-<p>Recently my wife and I got a new dog, Cooper. He is a mutt with mostly Wheaton Terrier and Wiredhaired Pointing Griffon. We are enjoying our time with him tremendously now.</p>
+        <p>  I upgraded many Dell 6248 switches to the latest and greatest firmware over the weekend.  I have been experiencing more packet loss than I would ever want to see on an internal LAN.  Connecting from the servers on the same switch would yield a periodic lost packet for no apparent reason.  There were some clues on the switch with logged “spanning tree topology changes” in the log file.  During this log event, I would drop packets not only on the local switch, but other connecting switches as well.  All of these switches are configured with Rapid STP, LAG groups between them, and two VLANs. Reading up on the dell site, I saw some good advice entailing turning on “Port Fast” on every port that isn’t an edge link between switches, namely ports connected to switches and servers.  This advice appears to be valid.  With the latest firmware I could go to Global STP settings and simply enable Port Fast.  It was smart enough to not turn it on for the LAG groups and switch interconnects with multi-vlans on them.  So far so good…over the past few hours I haven’t had any dropped packets. <a href="http://david-rancourt.com/2012/dell-powerconnect-switches-packet-loss-issues/dellswitchpktlossdemo/"><img src="http://res.cloudinary.com/david-rancourt-com/image/upload/v1414557779/dellswitchpktlossdemo_efln5m.png" alt="" title="dellswitchpktlossdemo" /></a></p>
     </section>
     <footer class="post-indexfooter">
-        <i class="fa fa-comments"></i> <a href="../../2014/10/22/moving-my-blog-to-github-pages/index.html#disqus_thread">Comments</a>
+        <i class="fa fa-comments"></i> <a href="../../2012/09/28/dell-powerconnect-switches-packet-loss-issues/index.html#disqus_thread">Comments</a>
     </footer>
 </article>
 
